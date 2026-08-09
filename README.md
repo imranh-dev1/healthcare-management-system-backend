@@ -1,4 +1,4 @@
-# PH Healthcare System — Backend
+# PH Healthcare System — Backend  [ERD Diagram](https://drawsql.app/teams/imran-hossain/diagrams/ph-healtcare-erd)
 
 REST API for a doctor-appointment platform: patients book consultations, doctors run them, admins manage the platform. This repo is the backend only.
 
