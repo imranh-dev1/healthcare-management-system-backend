@@ -22,7 +22,7 @@ declare global {
 // auth(Role.ADMIN, Role.USER, Role.Author)
 // auth() => ...requiredRoles => [Role.ADMIN, Role.USER, Role.AUTHOR]
 export const auth = (...requiredRoles: Role[]) => {
-	return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+	return catchAsync(async (req: Request, _res: Response, next: NextFunction) => {
 		const token = req.cookies.accessToken
 			? req.cookies.accessToken
 			: req.headers.authorization?.startsWith("Bearer ")
