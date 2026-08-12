@@ -188,9 +188,14 @@ const refreshToken = async (token: string) => {
 	};
 };
 
+const googleLogin = async () => {
+
+}
+
 export const AuthService = {
 	registerPatient,
 	loginUser,
 	getMe,
 	refreshToken,
+	googleLogin
 };
