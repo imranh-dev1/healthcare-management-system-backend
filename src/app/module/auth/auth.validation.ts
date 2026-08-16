@@ -24,7 +24,7 @@ const registerPatientSchema = z.object({
     }).optional()
 }); 
 
-export const loginPatientSchema = z.object({
+const loginPatientSchema = z.object({
     email: z
         .string()
         .trim()
@@ -35,9 +35,32 @@ export const loginPatientSchema = z.object({
         .string()
         .min(1, "Password is required"),
 });
+
+const ResetPasswordZodSchema = z.object({
+    email: z
+        .string()
+        .trim()
+        .toLowerCase()
+        .email("Please provide a valid email address"),
+    newPassword: z
+        .string()
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+            "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"),
+    otp: z.string().length(6)
+});
+
+const ForgotPasswordZodSchema = z.object({
+    email: z
+        .string()
+        .trim()
+        .toLowerCase()
+        .email("Please provide a valid email address"), 
+});
  
 
 export const userValidation = {
     registerPatientSchema,
-    loginPatientSchema
+    loginPatientSchema,
+    ResetPasswordZodSchema,
+    ForgotPasswordZodSchema
 }
