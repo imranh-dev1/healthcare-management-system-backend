@@ -20,6 +20,7 @@ import { googleClient } from "../../lib/googleAuth";
 import type { TokenPayload } from "google-auth-library";
 import crypto from "crypto"
 import { redisClient } from "../../lib/redis";
+import { transporter } from "../../lib/nodemailer";
 
 const registerPatient = async (payload: IRegisterPatientPayload) => {
 	const { name, password } = payload;
@@ -373,6 +374,72 @@ const forgotPassword = async (payload: IForgotPasswordPayload) =>{
 			value: expirationSeconds
 		}
 	}) 
+
+	await transporter.sendMail({
+    from: `"PH Healthcare" <${config.smtp_emai_sender}>`,
+    to: isUserExist.email,
+    subject: "Your PH Healthcare Password Reset OTP",
+    text: `Your PH Healthcare password reset OTP is ${otp}. This OTP will expire shortly. If you did not request a password reset, please ignore this email.`,
+    html: `
+        <div style="margin:0; padding:40px 20px; background-color:#f4f7fb; font-family:Arial, Helvetica, sans-serif;">
+            <div style="max-width:600px; margin:0 auto; background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.08);">
+
+                <!-- Header -->
+                <div style="padding:28px 32px; background:#0f766e; text-align:center;">
+                    <h1 style="margin:0; color:#ffffff; font-size:24px;">
+                        PH Healthcare
+                    </h1>
+                </div>
+
+                <!-- Content -->
+                <div style="padding:35px 32px;">
+                    <h2 style="margin:0 0 16px; color:#1f2937; font-size:22px;">
+                        Reset Your Password
+                    </h2>
+
+                    <p style="margin:0 0 20px; color:#4b5563; font-size:15px; line-height:1.6;">
+                        We received a request to reset the password for your PH Healthcare account.
+                        Use the verification code below to continue.
+                    </p>
+
+                    <!-- OTP -->
+                    <div style="margin:28px 0; padding:20px; background:#f0fdfa; border:1px solid #99f6e4; border-radius:8px; text-align:center;">
+                        <p style="margin:0 0 8px; color:#64748b; font-size:13px;">
+                            Your verification code
+                        </p>
+
+                        <div style="font-size:32px; font-weight:bold; letter-spacing:8px; color:#0f766e;">
+                            ${otp}
+                        </div>
+                    </div>
+
+                    <p style="margin:0 0 12px; color:#4b5563; font-size:14px; line-height:1.6;">
+                        This OTP is valid for a limited time. Please do not share this code with anyone.
+                    </p>
+
+                    <div style="margin-top:24px; padding:14px 16px; background:#fff7ed; border-left:4px solid #f97316; border-radius:4px;">
+                        <p style="margin:0; color:#9a3412; font-size:13px; line-height:1.5;">
+                            <strong>Security notice:</strong> If you did not request a password reset,
+                            you can safely ignore this email.
+                        </p>
+                    </div>
+
+                    <p style="margin:30px 0 0; color:#6b7280; font-size:14px; line-height:1.6;">
+                        Regards,<br />
+                        <strong style="color:#374151;">PH Healthcare Team</strong>
+                    </p>
+                </div>
+
+                <!-- Footer -->
+                <div style="padding:20px 32px; background:#f8fafc; text-align:center;">
+                    <p style="margin:0; color:#94a3b8; font-size:12px;">
+                        © ${new Date().getFullYear()} PH Healthcare. All rights reserved.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    `});
 }
 
 const resetPassword = async (payload: IResetPassword) => {
@@ -429,6 +496,78 @@ const resetPassword = async (payload: IResetPassword) => {
 
 	await redisClient.del([otpKey]);
 
+	await transporter.sendMail({
+    from: `"PH Healthcare" <${config.smtp_emai_sender}>`,
+    to: isUserExist.email,
+    subject: "PH Healthcare Password Reset Successful",
+    text: `Your PH Healthcare account password has been successfully reset. If you did not make this change, please contact our support team immediately.`,
+    html: `
+        <div style="margin:0; padding:40px 20px; background-color:#f4f7fb; font-family:Arial, Helvetica, sans-serif;">
+            <div style="max-width:600px; margin:0 auto; background:#ffffff; border-radius:12px; overflow:hidden;">
+
+                <!-- Header -->
+                <div style="padding:28px 32px; background:#0f766e; text-align:center;">
+                    <h1 style="margin:0; color:#ffffff; font-size:24px;">
+                        PH Healthcare
+                    </h1>
+                </div>
+
+                <!-- Content -->
+                <div style="padding:35px 32px;">
+
+                    <h2 style="margin:0 0 16px; color:#1f2937; font-size:22px;">
+                        Password Reset Successful
+                    </h2>
+
+                    <p style="margin:0 0 20px; color:#4b5563; font-size:15px; line-height:1.6;">
+                        Your PH Healthcare account password has been successfully
+                        reset.
+                    </p>
+
+                    <div style="
+                        margin:24px 0;
+                        padding:18px 20px;
+                        background:#f0fdf4;
+                        border:1px solid #bbf7d0;
+                        border-radius:8px;
+                    ">
+                        <p style="margin:0; color:#166534; font-size:14px; line-height:1.6;">
+                            <strong>Your password has been updated successfully.</strong><br />
+                            You can now sign in to your account using your new password.
+                        </p>
+                    </div>
+
+                    <div style="
+                        margin-top:24px;
+                        padding:14px 16px;
+                        background:#fff7ed;
+                        border-left:4px solid #f97316;
+                        border-radius:4px;
+                    ">
+                        <p style="margin:0; color:#9a3412; font-size:13px; line-height:1.5;">
+                            <strong>Security notice:</strong>
+                            If you did not request this password reset, please contact
+                            our support team immediately.
+                        </p>
+                    </div>
+
+                    <p style="margin:30px 0 0; color:#6b7280; font-size:14px; line-height:1.6;">
+                        Regards,<br />
+                        <strong style="color:#374151;">PH Healthcare Team</strong>
+                    </p>
+
+                </div>
+
+                <!-- Footer -->
+                <div style="padding:20px 32px; background:#f8fafc; text-align:center;">
+                    <p style="margin:0; color:#94a3b8; font-size:12px;">
+                        © ${new Date().getFullYear()} PH Healthcare. All rights reserved.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    `});
 }
 
 export const AuthService = {
