@@ -162,14 +162,13 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
 const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body; 
 
-	const result = await AuthService.forgotPassword(payload)
-
+	await AuthService.forgotPassword(payload) 
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
-		message: "User Password Forgot successfully",
-		data: result,
+		message: `User Password Forgot successfully, This email, ${payload.email}`,
+		data: null,
 	});
 });
  
