@@ -14,6 +14,7 @@ import type {
 	ILoginUserPayload,
 	IRegisterPatientPayload,
 	IRequestUser,
+	IResetPassword,
 } from "./auth.interface";
 import { googleClient } from "../../lib/googleAuth";
 import type { TokenPayload } from "google-auth-library";
@@ -332,10 +333,7 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 		refreshToken,
 	};
 };
-
-const resetPassword = async (payload: any) =>{
-
-}
+ 
 const forgotPassword = async (payload: IForgotPasswordPayload) =>{
 
 	const isUserExist = await prisma.user.findUnique({
@@ -351,6 +349,9 @@ const forgotPassword = async (payload: IForgotPasswordPayload) =>{
 	if (isUserExist.status === "BLOCKED") {
 		throw new Error("User is BLocked, Contact sport, and try again..")
 	}
+	if (isUserExist.status === "DELETED") {
+		throw new Error("User is Deleted, Contact sport, and try again..")
+	}
 
 	if (!isUserExist.emailVerified) {
 		throw new Error("User Email not verified.")
@@ -362,7 +363,7 @@ const forgotPassword = async (payload: IForgotPasswordPayload) =>{
 
 	const otp = crypto.randomInt(100000, 1000000).toString();
 
-	const otpKey = `forgot-password-otp:${payload.email}`;
+	const otpKey = `forgot-password-otp:${isUserExist.email}`;
 
 	const expirationSeconds = 5 * 60
 
@@ -372,6 +373,62 @@ const forgotPassword = async (payload: IForgotPasswordPayload) =>{
 			value: expirationSeconds
 		}
 	}) 
+}
+
+const resetPassword = async (payload: IResetPassword) => {
+
+	const {newPassword, otp, email} = payload;  
+
+	const isUserExist = await prisma.user.findUnique({
+		where: {
+			email: email
+		}
+	})
+
+	if (!isUserExist) {
+		throw new Error("User Dose Not Exist!")
+	}
+
+	if (isUserExist.status === "BLOCKED") {
+		throw new Error("User is BLocked, Contact sport, and try again..")
+	}
+	if (isUserExist.status === "DELETED") {
+		throw new Error("User is Deleted, Contact sport, and try again..")
+	}
+
+	if (!isUserExist.emailVerified) {
+		throw new Error("User Email not verified.")
+	}
+
+	if (isUserExist.googleId && isUserExist.authProvider === "GOOGLE") {
+		throw new Error("This User Has Account With Google Login...")
+	} 
+
+	const otpKey = `forgot-password-otp:${isUserExist.email}`;
+
+	const storedOtp = await redisClient.get(otpKey);
+
+	if (!storedOtp) {
+		throw new Error("OTP has expired.");
+	}
+
+	if (storedOtp !== otp) {
+		throw new Error("Invalid OTP.");
+	}
+
+	const hashedPassword = await bcrypt.hash(newPassword, Number(config.bcrypt_salt_rounds));
+
+	await prisma.user.update({
+		where: {
+			email: isUserExist.email
+		},
+		data: {
+			password: hashedPassword
+		}
+	})
+
+	await redisClient.del([otpKey]);
+
 }
 
 export const AuthService = {
