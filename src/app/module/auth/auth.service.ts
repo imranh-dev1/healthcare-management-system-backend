@@ -366,7 +366,7 @@ const forgotPassword = async (payload: IForgotPasswordPayload) =>{
 
 	const otpKey = `forgot-password-otp:${isUserExist.email}`;
 
-	const expirationSeconds = 5 * 60
+	const expirationSeconds = 5 * 60;
 
 	await redisClient.set(otpKey, otp, {
 		expiration: {
@@ -376,12 +376,13 @@ const forgotPassword = async (payload: IForgotPasswordPayload) =>{
 	}) 
 
 	await sendEmail({
-    to: isUserExist.email,
-    subject: "Your PH Healthcare Password Reset OTP",
-    template: "forgot-password-otp",
-    data: {
-        otp,
-    }})
+		to: isUserExist.email,
+		subject: "Your PH Healthcare Password Reset OTP",
+		template: "forgot-password-otp",
+		data: {
+			otp,
+		}
+	})
 }
 
 const resetPassword = async (payload: IResetPassword) => {
@@ -439,9 +440,9 @@ const resetPassword = async (payload: IResetPassword) => {
 	await redisClient.del([otpKey]);
 
 	await sendEmail({
-    to: isUserExist.email,
-    subject: "PH Healthcare Password Reset Successful",
-    template: "password-reset-success",
+		to: isUserExist.email,
+		subject: "PH Healthcare Password Reset Successful",
+		template: "password-reset-success",
 	});
 }
 
