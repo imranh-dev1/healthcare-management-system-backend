@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to PH Healthcare</title>
+</head>
+
+<body style="
+    margin:0;
+    padding:0;
+    background-color:#f4f7fb;
+    font-family:Arial, Helvetica, sans-serif;
+">
+
+    <div style="padding:40px 20px;">
+
+        <div style="
+            max-width:600px;
+            margin:0 auto;
+            background:#ffffff;
+            border-radius:12px;
+            overflow:hidden;
+            box-shadow:0 4px 15px rgba(0,0,0,0.08);
+        ">
+
+            <!-- Header -->
+            <div style="
+                padding:30px 32px;
+                background:#0f766e;
+                text-align:center;
+            ">
+                <h1 style="
+                    margin:0;
+                    color:#ffffff;
+                    font-size:25px;
+                ">
+                    PH Healthcare
+                </h1>
+            </div>
+
+            <!-- Content -->
+            <div style="padding:40px 32px;">
+
+                <h2 style="
+                    margin:0 0 16px;
+                    color:#1f2937;
+                    font-size:24px;
+                ">
+                    Welcome to PH Healthcare, <%= name %>!
+                </h2>
+
+                <p style="
+                    margin:0 0 20px;
+                    color:#4b5563;
+                    font-size:15px;
+                    line-height:1.7;
+                ">
+                    Your account has been successfully created and your
+                    email address has been verified.
+                </p>
+
+                <!-- Success Box -->
+                <div style="
+                    margin:25px 0;
+                    padding:20px;
+                    background:#f0fdf4;
+                    border:1px solid #bbf7d0;
+                    border-radius:8px;
+                ">
+                    <p style="
+                        margin:0;
+                        color:#166534;
+                        font-size:14px;
+                        line-height:1.6;
+                    ">
+                        <strong>Registration completed successfully!</strong>
+                        <br>
+                        Your PH Healthcare account is now ready to use.
+                    </p>
+                </div>
+
+                <p style="
+                    margin:0 0 20px;
+                    color:#4b5563;
+                    font-size:14px;
+                    line-height:1.7;
+                ">
+                    You can now sign in and access the features available
+                    to you as a patient.
+                </p>
+
+                <!-- Account Information -->
+                <div style="
+                    margin:25px 0;
+                    padding:18px 20px;
+                    background:#f8fafc;
+                    border:1px solid #e2e8f0;
+                    border-radius:8px;
+                ">
+                    <p style="
+                        margin:0 0 8px;
+                        color:#64748b;
+                        font-size:13px;
+                    ">
+                        Registered email
+                    </p>
+
+                    <p style="
+                        margin:0;
+                        color:#1f2937;
+                        font-size:15px;
+                        font-weight:600;
+                    ">
+                        <%= email %>
+                    </p>
+                </div>
+
+                <!-- Security Notice -->
+                <div style="
+                    margin-top:24px;
+                    padding:14px 16px;
+                    background:#fff7ed;
+                    border-left:4px solid #f97316;
+                    border-radius:4px;
+                ">
+                    <p style="
+                        margin:0;
+                        color:#9a3412;
+                        font-size:13px;
+                        line-height:1.5;
+                    ">
+                        <strong>Security reminder:</strong>
+                        Never share your password or account credentials
+                        with anyone.
+                    </p>
+                </div>
+
+                <p style="
+                    margin:30px 0 0;
+                    color:#6b7280;
+                    font-size:14px;
+                    line-height:1.6;
+                ">
+                    We're happy to have you with us.<br><br>
+
+                    Regards,<br>
+
+                    <strong style="color:#374151;">
+                        PH Healthcare Team
+                    </strong>
+                </p>
+
+            </div>
+
+            <!-- Footer -->
+            <div style="
+                padding:20px 32px;
+                background:#f8fafc;
+                text-align:center;
+            ">
+                <p style="
+                    margin:0;
+                    color:#94a3b8;
+                    font-size:12px;
+                ">
+                    © <%= year %> PH Healthcare. All rights reserved.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

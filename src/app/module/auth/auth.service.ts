@@ -142,6 +142,16 @@ const registerPatientVerification = async (payload: IEmailVerifyPayload) => {
         otpKey,
         patientRegisterPayloadKey,
     ]);
+
+	await sendEmail({
+		to: patientPayload.email,
+		subject: "Welcome to PH Healthcare!",
+		template: "welcome",
+		data: {
+			name: patientPayload.name,
+			email: patientPayload.email,
+		},
+	});
  
     const { patient: createdPatient, ...user } = createdUser;
 
