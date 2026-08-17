@@ -34,8 +34,51 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 		throw new Error("User with this email already exists");
 	}
 
-	const hashedPassword = await bcrypt.hash(password, 8);
+	const hashedPassword = await bcrypt.hash(password, Number(config.bcrypt_salt_rounds));
 
+	const otpValue = crypto.randomInt(100000, 1000000).toString();
+	const otpKey = `patient-register-otp:${email}`;
+	
+	const expirationSeconds = 5 * 60;
+
+	await redisClient.set(otpKey, otpValue, {
+		expiration: {
+			type: "EX",
+			value: expirationSeconds
+		}
+	}) 
+
+	const patientRegisterPayloadKey = `patient-register-payload:${email}`;
+	const redisUserDataPayload = {
+		name,
+		email,
+		password: hashedPassword,
+		patient:  { 
+			name, 
+			email 
+		}
+	}
+
+	await redisClient.set(patientRegisterPayloadKey, JSON.stringify(redisUserDataPayload), {
+		expiration: {
+			type: "EX",
+			value: expirationSeconds
+		}
+	}) 
+
+	await sendEmail({
+		to: email,
+		subject: "Verify Your PH Healthcare Email Address",
+		template: "email-verification",
+		data: {
+			otpValue,
+		}
+	});
+
+
+
+	/* 
+	
 	const createdUser = await prisma.user.create({
 		data: {
 			name,
@@ -78,6 +121,8 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 		accessToken,
 		refreshToken,
 	};
+
+	*/
 };
 
 const loginUser = async (payload: ILoginUserPayload) => {

@@ -9,6 +9,7 @@ const registerPatient = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 	const result = await AuthService.registerPatient(payload);
 
+	/*
 	const { accessToken, refreshToken, user, patient } = result;
 
 	res.cookie("accessToken", accessToken, {
@@ -35,6 +36,15 @@ const registerPatient = catchAsync(async (req: Request, res: Response) => {
 			patient,
 		},
 	});
+
+	*/ 
+	sendResponse(res, {
+		statusCode: httpStatus.CREATED,
+		success: true,
+		message: "Patient registered Email verification OTP Sent Successfully....",
+		data: null,
+	});
+	
 });
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
