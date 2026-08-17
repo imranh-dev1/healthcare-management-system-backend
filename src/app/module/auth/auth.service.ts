@@ -397,6 +397,15 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 					},
 				},
 			});
+			await sendEmail({
+				to: user.email,
+				subject: "Welcome to PH Healthcare!",
+				template: "welcome",
+				data: {
+					name: user.name,
+					email: user.email,
+				},
+			});	
 		}
 	}
 
