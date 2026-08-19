@@ -32,10 +32,10 @@ export default {
 	redis_password: process.env.REDIS_PASSWORD!,
 	redis_host: process.env.REDIS_HOST!,
 	redis_port: process.env.REDIS_PORT!,
-	
+
 	smtp_user: process.env.SMTP_USER!,
 	smtp_emai_sender: process.env.SMTP_EMAIL_SENDER!,
-	smtp_password: process.env.SMTP_PASSWORD!, 
+	smtp_password: process.env.SMTP_PASSWORD!,
 
 	cloudinary_name: process.env.CLOUDINARY_CLOUD_NAME!,
 	cloudinary_api_key: process.env.CLOUDINARY_API_KEY!,
@@ -43,7 +43,8 @@ export default {
 
 	bikash_sendbox_url: process.env.BKASH_SENDBOX_URL!,
 	bikash_username: process.env.BKASH_USERNAME!,
-	bikash_passwprd:process.env.BKASH_PASSWORD!,
+	bikash_passwprd: process.env.BKASH_PASSWORD!,
 	bikash_app_key: process.env.BKASH_APP_KEY!,
 	bikash_app_secret: process.env.BKASH_APP_SECRET!,
+	bikash_callback_url: process.env.BKASH_CALLBACK_URL!,
 };

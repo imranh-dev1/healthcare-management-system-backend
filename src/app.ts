@@ -14,6 +14,7 @@ import { redisClient } from "./app/lib/redis";
 import crypto from "crypto"
 import { UserRoutes } from "./app/module/user/user.route";
 import { getBikashGrantIdToken } from "./app/lib/bikash";
+import { AppointmentRoutes } from "./app/module/appointment/appointment.route";
 
 
 const app: Application = express();
@@ -34,6 +35,7 @@ app.use(cookieParser());
 
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/user", UserRoutes);
+app.use("/api/v1/appointment", AppointmentRoutes);
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {
@@ -50,13 +52,13 @@ app.get("/test", async (req: Request, res: Response) => {
 
 		const bikashGrantTokenId = await getBikashGrantIdToken();
 		console.log(bikashGrantTokenId)
- 
+
 		res.status(httpStatus.OK).json({
 			success: true,
 			message: "Welcome to PH Healthcare System Backend Bikash initialize test",
 			data: null
 		});
-		
+
 	} catch (error) {
 		console.log(error)
 	}
