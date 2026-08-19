@@ -27,11 +27,20 @@ const bookAppointment = async () => {
 
     const createPaymentResult = await createPaymentResponse.json()
 
-    console.log(createPaymentResult)
+    // console.log(createPaymentResult)
 
     return createPaymentResult
 }
 
+const bookAppointmentCallback = async () => {
+
+    return {
+        success: true
+    }
+
+}
+
 export const AppointmentServices = {
-    bookAppointment
+    bookAppointment,
+    bookAppointmentCallback
 }
