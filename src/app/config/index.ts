@@ -37,7 +37,13 @@ export default {
 	smtp_emai_sender: process.env.SMTP_EMAIL_SENDER!,
 	smtp_password: process.env.SMTP_PASSWORD!, 
 
-	cloudinary_name: process.env.CLOUDINARY_CLOUD_NAME,
-	cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
-	cloudinary_secret: process.env.CLOUDINARY_API_SECRET,
+	cloudinary_name: process.env.CLOUDINARY_CLOUD_NAME!,
+	cloudinary_api_key: process.env.CLOUDINARY_API_KEY!,
+	cloudinary_secret: process.env.CLOUDINARY_API_SECRET!,
+
+	bikash_sendbox_url: process.env.BKASH_SENDBOX_URL!,
+	bikash_username: process.env.BKASH_USERNAME!,
+	bikash_passwprd:process.env.BKASH_PASSWORD!,
+	bikash_app_key: process.env.BKASH_APP_KEY!,
+	bikash_app_secret: process.env.BKASH_APP_SECRET!,
 };

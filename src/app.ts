@@ -13,6 +13,7 @@ import { AuthRoutes } from "./app/module/auth/auth.route";
 import { redisClient } from "./app/lib/redis";
 import crypto from "crypto"
 import { UserRoutes } from "./app/module/user/user.route";
+import { getBikashGrantIdToken } from "./app/lib/bikash";
 
 
 const app: Application = express();
@@ -47,19 +48,13 @@ app.get("/test", async (req: Request, res: Response) => {
 
 	try {
 
-		await redisClient.set("Ph-healthcare-reset-password:pretaint@gmail.com", 55405, {
-			expiration: {
-				type: "EX",
-				value: 300
-			}
-		})
-
-		const otp = crypto.randomInt(100000, 1000000)
-
+		const bikashGrantTokenId = await getBikashGrantIdToken();
+		console.log(bikashGrantTokenId)
+ 
 		res.status(httpStatus.OK).json({
 			success: true,
-			message: "Welcome to PH Healthcare System Backend redis test",
-			data: otp
+			message: "Welcome to PH Healthcare System Backend Bikash initialize test",
+			data: null
 		});
 		
 	} catch (error) {
