@@ -16,7 +16,7 @@ export const getBikashGrantIdToken = async () => {
 			return idToken;
 		}
 
-		if (refreshToken && refreshTokenTTL > 0) {
+		if ((idTokenTTL <= 600 || !idToken) && refreshToken  && refreshTokenTTL > 600) {
 			const response = await fetch(
 				`${config.bikash_sendbox_url}/tokenized/checkout/token/refresh`,
 				{
@@ -85,7 +85,7 @@ export const getBikashGrantIdToken = async () => {
 				value: 60 * 60 * 24 * 28,
 			},
 		});
-
+ 
 		return result.id_token;
 	} catch (error: any) {
 		throw new Error(error.message || "Failed to get Bkash ID token");
