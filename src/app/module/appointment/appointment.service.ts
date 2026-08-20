@@ -42,14 +42,6 @@ const bookAppointmentCallback = async (query: Record<string, any>) => {
         throw new Error("Payment ID is required");
     }
 
-    if (status !== "success") {
-        return {
-            paymentID,
-            status,
-            message: "Payment was not successful",
-        };
-    }
-
     const bikashIdToken = await getBikashGrantIdToken();
 
     const executePaymentResponse = await fetch(`${config.bikash_sendbox_url}/tokenized/checkout/execute`,
@@ -69,9 +61,24 @@ const bookAppointmentCallback = async (query: Record<string, any>) => {
 
     const executePaymentResult = await executePaymentResponse.json();
 
-    console.log("Execute Payment Response:", executePaymentResult);
+    if (status === "success") {
+        return {
+            executePaymentResult,
+            redirectUrl: `${config.frontend_url}/dashboard/my-appoinment?status=success`
+        }
+    }
 
-    return executePaymentResult;
+    if (status === "failure") {
+        return {
+            executePaymentResult,
+            redirectUrl: `${config.frontend_url}/dashboard/my-appoinment?status=failure`
+        }
+    }
+
+    return {
+        executePaymentResult,
+        redirectUrl: `${config.frontend_url}/dashboard/my-appoinment?status=cancelled`
+    };
 };
 
 export const AppointmentServices = {
