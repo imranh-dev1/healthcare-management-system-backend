@@ -17,7 +17,7 @@ const bookAppointment = catchAsync(async (req: Request, res: Response) => {
 });
 const bookAppointmentCallback = catchAsync(async (req: Request, res: Response) => {
 
-    const result = await AppointmentServices.bookAppointmentCallback()
+    const result = await AppointmentServices.bookAppointmentCallback(req.query)
 
     console.log(result, req.query)
 
