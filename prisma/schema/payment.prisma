@@ -11,7 +11,7 @@ model Payment {
     getewayResponse       Json?
     status                PaymentStatus   @default(UNPAID)
     refundTrxId           String?
-    refundAmount          Decimal         @db.Decimal(10, 2)
+    refundAmount          Decimal?         @db.Decimal(10, 2)
     refundReason          String?
     refundedAt            String?
     appointmentId         String          @unique
