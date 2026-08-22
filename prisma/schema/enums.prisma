@@ -37,3 +37,10 @@ enum PaymentStatus {
   FAILED
   REFUNDED
 }
+
+enum PaymentGateways {
+  BKASH
+  NAGAD
+  SSLCOMMERZ
+  STRIPE
+}
