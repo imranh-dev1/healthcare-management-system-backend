@@ -29,7 +29,7 @@ const bookAppointment = async (payload: any, user: RequestUser) => {
                 payerReference: user.email,
                 callbackURL: `${config.bikash_callback_url}/appointment/book-appointment/payment/callback`,
                 merchantAssociationInfo: "MI05MID54RF09123456One",
-                amount: "500",
+                amount: "1000",
                 currency: "BDT",
                 intent: "sale",
                 merchantInvoiceNumber: appointment.id
@@ -266,7 +266,7 @@ const cancleAppointment = async (payload: any) => {
             throw new Error("No Bkash Access Token Found!");
         }
 
-        const refundPaymentResponse = await fetch(`${config.bikash_sendbox_url}/v2/tokenized-checkout/refund/payment/transaction`, {
+        const refundPaymentResponse = await fetch(`${config.bikash_sendbox_url}/tokenized/checkout/payment/refund`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -275,9 +275,10 @@ const cancleAppointment = async (payload: any) => {
                 "X-App-Key": config.bikash_app_key,
             },
             body: JSON.stringify({
-                paymentId: existingAppointment.payment?.bkashPaymentId,
-                trxId: existingAppointment.payment?.bkashTrxId,
-                refundAmount: existingAppointment.payment?.amount,
+                paymentID: existingAppointment.payment?.bkashPaymentId,
+                trxID: existingAppointment.payment?.bkashTrxId,
+                amount: existingAppointment.payment?.amount.toString(),
+                sku: "Appointment Canceletion",
                 reason: "Patient Cancelled The Appointment"
 
             })
@@ -290,12 +291,16 @@ const cancleAppointment = async (payload: any) => {
                 appointmentId: existingAppointment.id,
             },
             data: {
-                refundTrxId: refundPaymentResult.refundTrxId,
-                refundAmount: refundPaymentResult.refundAmount,
+                refundTrxId: refundPaymentResult.refundTrxID,
                 refundedAt: refundPaymentResult.completedTime,
-                refundReason: "Patient Cancelled The Appointment"
+                refundAmount: refundPaymentResult.amount,
+                refundReason: "Patient Cancelled The Appointment",
+                status: PaymentStatus.REFUNDED,
+                getewayResponse: refundPaymentResult,
             }
         })
+
+        console.log("refund", { refundPaymentResult }, "UpdatePayment", updatePayment)
 
         return {
             appointment: updatedAppointment,

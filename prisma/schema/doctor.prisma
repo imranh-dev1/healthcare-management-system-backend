@@ -1,0 +1,5 @@
+model Doctor {
+    id String @id @default(uuid())
+
+    @@map("doctors")
+}
