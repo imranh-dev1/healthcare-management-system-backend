@@ -45,3 +45,9 @@ enum PaymentGateways {
   SSLCOMMERZ
   STRIPE
 }
+
+enum DoctorVerificationStatus {
+  PENDING
+  APPROVED
+  REJECT
+}
