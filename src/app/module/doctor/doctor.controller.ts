@@ -3,10 +3,9 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from "http-status"
 import { DoctorServices } from "./doctor.service";
+import { ApplyingAsDoctorValidationSchema } from "./doctor.validation";
 
 const applyingAsDoctor = catchAsync(async (req: Request, res: Response) => {
-
-    const payload = await JSON.parse(req.body.data);
 
     const uploadedFiles = req.files;
 
@@ -18,11 +17,23 @@ const applyingAsDoctor = catchAsync(async (req: Request, res: Response) => {
         ? []
         : uploadedFiles?.additionalFiles ?? [];
 
+    const zodValidationResult = ApplyingAsDoctorValidationSchema.safeParse(
+        JSON.parse(req.body.data),
+    );
+
+    if (!zodValidationResult.success) {
+        throw new Error(zodValidationResult.error.issues[0].message);
+    }
+
+    const payload = zodValidationResult.data;
+
     const result = await DoctorServices.applyingAsDoctor(
         payload,
         resumeFile!,
         additionalFiles
     );
+
+
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
