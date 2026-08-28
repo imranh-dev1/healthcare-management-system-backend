@@ -15,6 +15,7 @@ import crypto from "crypto"
 import { UserRoutes } from "./app/module/user/user.route";
 import { getBikashGrantIdToken } from "./app/lib/bikash";
 import { AppointmentRoutes } from "./app/module/appointment/appointment.route";
+import { DoctorRoutes } from "./app/module/doctor/doctor.route";
 
 
 const app: Application = express();
@@ -36,6 +37,7 @@ app.use(cookieParser());
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/user", UserRoutes);
 app.use("/api/v1/appointment", AppointmentRoutes);
+app.use("/api/v1/doctor", DoctorRoutes);
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {
