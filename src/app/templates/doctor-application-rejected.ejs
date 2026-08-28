@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Application Update - PH Healthcare</title>
+</head>
+
+<body style="
+    margin:0;
+    padding:0;
+    background-color:#f4f7fb;
+    font-family:Arial, Helvetica, sans-serif;
+">
+    <div style="padding:40px 20px;">
+        <div style="
+            max-width:600px;
+            margin:0 auto;
+            background:#ffffff;
+            border-radius:12px;
+            overflow:hidden;
+            box-shadow:0 4px 15px rgba(0,0,0,0.08);
+        ">
+
+```
+        <!-- Header -->
+        <div style="
+            padding:28px 32px;
+            background:#0f766e;
+            text-align:center;
+        ">
+            <h1 style="
+                margin:0;
+                color:#ffffff;
+                font-size:24px;
+                font-weight:700;
+            ">
+                PH Healthcare
+            </h1>
+        </div>
+
+        <!-- Content -->
+        <div style="padding:35px 32px;">
+
+            <h2 style="
+                margin:0 0 16px;
+                color:#1f2937;
+                font-size:22px;
+                font-weight:600;
+            ">
+                Doctor Application Update
+            </h2>
+
+            <p style="
+                margin:0 0 20px;
+                color:#4b5563;
+                font-size:15px;
+                line-height:1.6;
+            ">
+                Dear <strong><%= doctorName %></strong>,
+            </p>
+
+            <p style="
+                margin:0 0 20px;
+                color:#4b5563;
+                font-size:15px;
+                line-height:1.6;
+            ">
+                Thank you for your interest in joining PH Healthcare.
+                After carefully reviewing your doctor application,
+                we are unable to approve your application at this time.
+            </p>
+
+            <!-- Rejection Status -->
+            <div style="
+                margin:28px 0;
+                padding:22px;
+                background:#fef2f2;
+                border:1px solid #fecaca;
+                border-radius:8px;
+                text-align:center;
+            ">
+                <p style="
+                    margin:0 0 10px;
+                    color:#64748b;
+                    font-size:13px;
+                ">
+                    Application Status
+                </p>
+
+                <div style="
+                    font-size:24px;
+                    font-weight:700;
+                    color:#dc2626;
+                ">
+                    REJECTED
+                </div>
+            </div>
+
+            <!-- Rejection Reason -->
+            <% if (rejectionReason) { %>
+                <div style="
+                    margin:24px 0;
+                    padding:16px;
+                    background:#fff7ed;
+                    border-left:4px solid #f97316;
+                    border-radius:4px;
+                ">
+                    <p style="
+                        margin:0 0 8px;
+                        color:#9a3412;
+                        font-size:13px;
+                        font-weight:700;
+                    ">
+                        Reason for rejection
+                    </p>
+
+                    <p style="
+                        margin:0;
+                        color:#4b5563;
+                        font-size:14px;
+                        line-height:1.6;
+                    ">
+                        <%= rejectionReason %>
+                    </p>
+                </div>
+            <% } %>
+
+            <p style="
+                margin:0 0 12px;
+                color:#4b5563;
+                font-size:14px;
+                line-height:1.6;
+            ">
+                We encourage you to review the information provided
+                in your application and make any necessary corrections.
+            </p>
+
+            <p style="
+                margin:0;
+                color:#4b5563;
+                font-size:14px;
+                line-height:1.6;
+            ">
+                You may submit a new application in the future if
+                you meet the required criteria.
+            </p>
+
+            <!-- Notice -->
+            <div style="
+                margin-top:24px;
+                padding:14px 16px;
+                background:#f8fafc;
+                border-left:4px solid #64748b;
+                border-radius:4px;
+            ">
+                <p style="
+                    margin:0;
+                    color:#475569;
+                    font-size:13px;
+                    line-height:1.5;
+                ">
+                    <strong>Need help?</strong>
+                    Please contact the PH Healthcare support team
+                    if you believe this decision was made in error.
+                </p>
+            </div>
+
+            <!-- Closing -->
+            <p style="
+                margin:30px 0 0;
+                color:#6b7280;
+                font-size:14px;
+                line-height:1.6;
+            ">
+                Thank you for your understanding.<br><br>
+
+                Regards,<br>
+
+                <strong style="color:#374151;">
+                    PH Healthcare Team
+                </strong>
+            </p>
+
+        </div>
+
+        <!-- Footer -->
+        <div style="
+            padding:20px 32px;
+            background:#f8fafc;
+            text-align:center;
+        ">
+            <p style="
+                margin:0;
+                color:#94a3b8;
+                font-size:12px;
+            ">
+                © <%= year %> PH Healthcare. All rights reserved.
+            </p>
+        </div>
+
+    </div>
+</div>
+```
+
+</body>
+</html>

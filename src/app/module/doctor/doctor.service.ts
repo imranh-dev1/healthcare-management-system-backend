@@ -218,6 +218,23 @@ const approvedDoctor = async (payload: IApproveDoctor, reviewer: RequestUser) =>
         },
     });
 
+    await sendEmail({
+        to: doctor.email,
+        subject:
+            normalizedVerificationStatus === DoctorVerificationStatus.APPROVED
+                ? "Your PH Healthcare Doctor Application Has Been Approved"
+                : "Update on Your PH Healthcare Doctor Application",
+        template:
+            normalizedVerificationStatus === DoctorVerificationStatus.APPROVED
+                ? "doctor-application-approved"
+                : "doctor-application-rejected",
+        data: {
+            doctorName: doctor.name,
+            rejectionReason:
+                normalizedVerificationStatus === DoctorVerificationStatus.REJECT ? rejectionReson : undefined,
+        },
+    });
+
     return approvedDoctor;
 };
 

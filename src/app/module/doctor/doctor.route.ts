@@ -14,6 +14,6 @@ router.post("/applying-as-doctor", upload.fields([
 ]), DoctorController.applyingAsDoctor)
 
 router.post("/applying-as-doctor/email-verify", auth(Role.DOCTOR), DoctorController.verifiDoctorEmail)
-router.post("/approved-doctor", auth(Role.ADMIN), validateRequest(ApproveDoctorValidationSchema), DoctorController.approvedDoctor)
+router.post("/approved-doctor", auth(Role.ADMIN, Role.SUPER_ADMIN), validateRequest(ApproveDoctorValidationSchema), DoctorController.approvedDoctor)
 
 export const DoctorRoutes = router;
