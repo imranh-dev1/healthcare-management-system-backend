@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DoctorVerificationStatus } from "../../../generated/prisma/enums";
 
 export const ApplyingAsDoctorValidationSchema = z.object({
     user: z.object({
@@ -73,3 +74,19 @@ export const ApplyingAsDoctorValidationSchema = z.object({
             .nullable(),
     }),
 });
+
+
+export const ApproveDoctorValidationSchema = z.object({
+    doctorId: z
+        .string()
+        .uuid("Invalid doctor ID."),
+
+    verificationStatus: z.enum(DoctorVerificationStatus, {
+        message: "Invalid doctor verification status.",
+    }),
+
+    rejectionReason: z
+        .string()
+        .trim()
+        .max(500, "Rejection reason must not exceed 500 characters.")
+}); 

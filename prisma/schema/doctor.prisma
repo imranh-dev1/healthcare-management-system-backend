@@ -12,6 +12,7 @@ model Doctor {
     contactNumber      String?
     verificationStatus DoctorVerificationStatus @default(PENDING)
     rejectionReason    String?
+    reviewedBy         String?
     reviewdAt          DateTime?
     resume             String?
     resumePublicId     String?

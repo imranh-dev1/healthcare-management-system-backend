@@ -4,7 +4,7 @@ export interface IDoctor {
         email: string;
     };
 
-    doctor: { 
+    doctor: {
         address?: string | null;
         specialization: string;
         licenseNumber: string;
@@ -14,4 +14,15 @@ export interface IDoctor {
         consultationFee?: number | null;
         contactNumber?: string | null;
     };
+}
+
+export interface IDoctorEmailVerify {
+    otp: string,
+    email: string
+}
+
+export interface IApproveDoctor {
+    doctorId: string;
+    verificationStatus: string;
+    rejectionReson: string
 }
