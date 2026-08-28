@@ -238,8 +238,18 @@ const approvedDoctor = async (payload: IApproveDoctor, reviewer: RequestUser) =>
     return approvedDoctor;
 };
 
+const getAllDoctors = async () => {
+
+    const allDoctors = await prisma.doctor.findMany({});
+
+    return allDoctors
+
+}
+
 export const DoctorServices = {
     applyingAsDoctor,
     verifiDoctorEmail,
-    approvedDoctor
+    approvedDoctor,
+    getAllDoctors
+
 }
