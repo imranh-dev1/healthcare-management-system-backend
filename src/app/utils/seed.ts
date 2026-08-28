@@ -14,8 +14,8 @@ export const seedSuperAdmin = async () => {
         if (isSuperAdminExist) {
             console.log("Super Admin already exist............");
             return
-        } 
-        
+        }
+
         const hashedPassword = await bcrypt.hash(config.super_admin_password, Number(config.bcrypt_salt_rounds))
 
         const superAdmin = await prisma.user.create({
@@ -100,7 +100,17 @@ export const seedTesterDoctor = async () => {
                 password: hashedPassword,
                 role: Role.DOCTOR,
                 needPasswordChange: false,
-                emailVerified: true
+                emailVerified: true,
+                doctor: {
+                    create: {
+                        name: config.tester_doctor_name,
+                        email: config.tester_doctor_email,
+                        specialization: "General Medicine",
+                        licenseNumber: "TEST-DOCTOR-LICENSE",
+                        qualification: "MBBS",
+                        experinenceYears: 1,
+                    }
+                }
             }
         });
         console.log("Tester Doctor Created", testerDoctor)
