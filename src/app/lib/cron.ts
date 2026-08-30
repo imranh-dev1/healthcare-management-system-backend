@@ -26,3 +26,32 @@ export const unverifiedDoctorDelete = async () => {
         console.log("Unverified Doctor Delete cron schedule (every 10 minites) Is Runnig.....");
     });
 }
+
+export const rejectedDoctorDelete = async () => {
+    cron.schedule('0 0 * * *', async () => {
+        try {
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+            const rejectedDoctorDeleted = await prisma.user.deleteMany({
+                where: {
+                    role: Role.DOCTOR,
+                    doctor: {
+                        verificationStatus: DoctorVerificationStatus.REJECT,
+                        updatedAt: {
+                            lt: oneMonthAgo,
+                        },
+                    },
+                },
+            });
+
+            if (rejectedDoctorDeleted.count > 0) {
+                console.log(`Cron: Deleted ${rejectedDoctorDeleted.count} rejected doctor(s) older than 1 month`);
+            }
+        } catch (error) {
+            console.log('Cron: Failed to delete rejected doctors older than 1 month', error);
+        }
+
+        console.log('Rejected Doctor Delete cron is running (daily at midnight)...');
+    });
+};
