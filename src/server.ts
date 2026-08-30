@@ -22,11 +22,11 @@ const main = async () => {
 		await seedSuperAdmin();
 		await seedTesterAdmin();
 		await seedTesterDoctor();
+		await unverifiedDoctorDelete()
 		app.listen(PORT, () => {
 			console.log(`Server is running on port, ${PORT}`);
 		});
 
-		await unverifiedDoctorDelete()
 	} catch (error) {
 		console.error("Error starting the server:", error);
 		await prisma.$disconnect();
