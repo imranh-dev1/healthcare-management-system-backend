@@ -3,15 +3,16 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from "http-status";
 import { UserServices } from "./user.service";
+import { AppError } from "../../utils/AppError";
 
 
 const profileImageUpload = catchAsync(async (req: Request, res: Response)=>{
 
     if (!req.file) {
-        throw new Error("Profile image not Provided.")
+        throw new AppError(400, "Profile image not Provided.")
     }
     if (!req.user?.userId) {
-        throw new Error("User Not Found, this profile image upload.")
+        throw new AppError(404, "User Not Found, this profile image upload.")
     }
 
     const result = await UserServices.profileImageUpload(req.file.buffer, req.user?.userId); 

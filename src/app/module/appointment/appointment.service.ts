@@ -3,6 +3,7 @@ import config from "../../config";
 import { getBikashGrantIdToken } from "../../lib/bikash"
 import { prisma } from "../../lib/prisma";
 import { RequestUser } from "../../middleware/checkAuth";
+import { AppError } from "../../utils/AppError";
 
 const bookAppointment = async (payload: any, user: RequestUser) => {
 
@@ -71,11 +72,11 @@ const payAppointment = async (payload: any, user: RequestUser) => {
     });
 
     if (!existingAppointment) {
-        throw new Error("Appointment Does Not Exists..!");
+        throw new AppError(404, "Appointment Does Not Exists..!");
     }
 
     if (existingAppointment.status !== "PENDING") {
-        throw new Error("Appointment Is Not Pending!");
+        throw new AppError(400, "Appointment Is Not Pending!");
     }
 
     const createPaymentResponse = await fetch(`${config.bikash_sendbox_url}/tokenized/checkout/create`, {
@@ -123,17 +124,17 @@ const bookAppointmentCallback = async (query: Record<string, any>) => {
         const { paymentID, status } = query;
 
         if (!paymentID) {
-            throw new Error("Payment ID is required");
+            throw new AppError(400, "Payment ID is required");
         }
 
         if (!status) {
-            throw new Error("Payment Status is Missing");
+            throw new AppError(400, "Payment Status is Missing");
         }
 
         const bikashIdToken = await getBikashGrantIdToken();
 
         if (!bikashIdToken) {
-            throw new Error("No Bkash Access Token Found!");
+            throw new AppError(502, "No Bkash Access Token Found!");
         }
 
         const executePaymentResponse = await fetch(`${config.bikash_sendbox_url}/tokenized/checkout/execute`,
@@ -240,15 +241,15 @@ const cancleAppointment = async (payload: any) => {
         });
 
         if (!existingAppointment) {
-            throw new Error("Appointment Does Not Exists..!");
+            throw new AppError(404, "Appointment Does Not Exists..!");
         }
 
         if (existingAppointment.status === "ONGOING" || existingAppointment.status === "COMPLETED") {
-            throw new Error("Appointment Ongoing or Completed, Not this Appointment Refund");
+            throw new AppError(400, "Appointment Ongoing or Completed, Not this Appointment Refund");
         }
 
         if (existingAppointment.status === "CANCELLED") {
-            throw new Error("Appointment Already Cancelled");
+            throw new AppError(400, "Appointment Already Cancelled");
         }
 
         const updatedAppointment = await tx.appointment.update({
@@ -263,7 +264,7 @@ const cancleAppointment = async (payload: any) => {
         const bikashIdToken = await getBikashGrantIdToken();
 
         if (!bikashIdToken) {
-            throw new Error("No Bkash Access Token Found!");
+            throw new AppError(502, "No Bkash Access Token Found!");
         }
 
         const refundPaymentResponse = await fetch(`${config.bikash_sendbox_url}/tokenized/checkout/payment/refund`, {

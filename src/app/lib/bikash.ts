@@ -1,5 +1,6 @@
 import config from "../config";
 import { redisClient } from "./redis";
+import { AppError } from "../utils/AppError";
 
 export const getBikashGrantIdToken = async () => {
 	try {
@@ -67,7 +68,7 @@ export const getBikashGrantIdToken = async () => {
 		);
 
 		if (!response.ok) {
-			throw new Error("Bkash Access Token Grant Failed");
+			throw new AppError(502, "Bkash Access Token Grant Failed");
 		}
 
 		const result = await response.json();
@@ -88,6 +89,6 @@ export const getBikashGrantIdToken = async () => {
  
 		return result.id_token;
 	} catch (error: any) {
-		throw new Error(error.message || "Failed to get Bkash ID token");
+		throw new AppError(502, error.message || "Failed to get Bkash ID token");
 	}
 };

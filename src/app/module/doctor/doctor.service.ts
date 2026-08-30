@@ -11,6 +11,7 @@ import sendEmail from "../../utils/sendEmail";
 import { RequestUser } from "../../middleware/checkAuth";
 import { IQuery } from "../../interface";
 import { DoctorWhereInput } from "../../../generated/prisma/models";
+import { AppError } from "../../utils/AppError";
 
 
 const applyingAsDoctor = async (payload: IDoctor, resumeFile: Express.Multer.File, additionalFiles: Express.Multer.File[]) => {
@@ -23,7 +24,7 @@ const applyingAsDoctor = async (payload: IDoctor, resumeFile: Express.Multer.Fil
     console.log(payload)
 
     if (userAlreadyExist) {
-        throw new Error("User already exists with this email.");
+        throw new AppError(409, "User already exists with this email.");
     }
 
     const resumeUploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
@@ -34,7 +35,7 @@ const applyingAsDoctor = async (payload: IDoctor, resumeFile: Express.Multer.Fil
                 }
 
                 if (!result) {
-                    return reject(new Error("No Result form Cloudanry"))
+                    return reject(new AppError(502, "No Result form Cloudanry"))
                 }
 
                 resolve(result)
@@ -50,7 +51,7 @@ const applyingAsDoctor = async (payload: IDoctor, resumeFile: Express.Multer.Fil
                     }
 
                     if (!result) {
-                        return reject(new Error("No Result form Cloudanry"))
+                        return reject(new AppError(502, "No Result form Cloudanry"))
                     }
 
                     resolve(result)
@@ -136,21 +137,21 @@ const verifiDoctorEmail = async (payload: IDoctorEmailVerify) => {
     })
 
     if (!existingUser) {
-        throw new Error("Doctor Application Not Found. Please Apply Again.")
+        throw new AppError(404, "Doctor Application Not Found. Please Apply Again.")
     }
 
     if (existingUser.emailVerified) {
-        throw new Error("Email Already Verified")
+        throw new AppError(400, "Email Already Verified")
     }
 
     const otpKey = `doctor-email-verified-otp:${email}`;
     const redisOtp = await redisClient.get(otpKey);
 
     if (!redisOtp) {
-        throw new Error('OTP Expired. Your Application Window Has Closed, Please Apply Again.')
+        throw new AppError(400, 'OTP Expired. Your Application Window Has Closed, Please Apply Again.')
     }
     if (redisOtp !== otp) {
-        throw new Error('OTP Does Not Match')
+        throw new AppError(400, 'OTP Does Not Match')
     }
 
     await redisClient.del(otpKey);
@@ -179,28 +180,29 @@ const approvedDoctor = async (payload: IApproveDoctor, reviewer: RequestUser) =>
     });
 
     if (!doctor) {
-        throw new Error("Doctor not found.");
+        throw new AppError(404, "Doctor not found.");
     }
 
     if (doctor.isDeleted || doctor.user.isDeleted) {
-        throw new Error("Doctor Has been Deleted.");
+        throw new AppError(404, "Doctor Has been Deleted.");
     }
     if (!doctor.user.emailVerified) {
-        throw new Error("Doctor email has not been verified.");
+        throw new AppError(400, "Doctor email has not been verified.");
     }
 
     if (doctor.verificationStatus === "APPROVED") {
-        throw new Error("Doctor is already approved. Application Cannot Reviwed");
+        throw new AppError(400, "Doctor is already approved. Application Cannot Reviwed");
     }
 
     if (doctor.verificationStatus !== DoctorVerificationStatus.PENDING) {
-        throw new Error(
+        throw new AppError(
+            400,
             `Doctor application has Already Been ${String(doctor.verificationStatus).toLowerCase()}.`
         );
     }
 
     if (verificationStatus === DoctorVerificationStatus.REJECT && !rejectionReson) {
-        throw new Error("Rejection reason is required when rejecting a doctor application.");
+        throw new AppError(400, "Rejection reason is required when rejecting a doctor application.");
     }
 
     const normalizedVerificationStatus = verificationStatus as DoctorVerificationStatus;

@@ -52,7 +52,11 @@ export const globalErrorHandler = async (
 		errorMessage = err.message;
 	}
 
-	res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+	if (typeof err?.statusCode === "number") {
+		statusCode = err.statusCode;
+	}
+
+	res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({
 		success: false,
 		statusCode: statusCode || httpStatus.INTERNAL_SERVER_ERROR,
 		name:

@@ -4,6 +4,7 @@ import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from "http-status"
 import { DoctorServices } from "./doctor.service";
 import { ApplyingAsDoctorValidationSchema } from "./doctor.validation";
+import { AppError } from "../../utils/AppError";
 
 const applyingAsDoctor = catchAsync(async (req: Request, res: Response) => {
 
@@ -22,7 +23,7 @@ const applyingAsDoctor = catchAsync(async (req: Request, res: Response) => {
     );
 
     if (!zodValidationResult.success) {
-        throw new Error(zodValidationResult.error.issues[0].message);
+        throw new AppError(400, zodValidationResult.error.issues[0].message);
     }
 
     const payload = zodValidationResult.data;

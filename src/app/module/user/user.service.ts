@@ -1,6 +1,7 @@
 import { UploadApiResponse } from "cloudinary"
 import { cloudinary } from "../../lib/cloudinary"
 import { prisma } from "../../lib/prisma"
+import { AppError } from "../../utils/AppError"
 
 const profileImageUpload = async (buffer: Buffer, userId: string)=> {
     
@@ -22,7 +23,7 @@ const profileImageUpload = async (buffer: Buffer, userId: string)=> {
                 } 
 
                 if (!result) {
-                    return reject(new Error("No Result form Cloudanry"))
+                    return reject(new AppError(502, "No Result form Cloudanry"))
                 }
 
                 resolve(result) 
