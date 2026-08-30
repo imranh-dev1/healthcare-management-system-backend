@@ -28,7 +28,7 @@ export const unverifiedDoctorDelete = async () => {
 }
 
 export const rejectedDoctorDelete = async () => {
-    cron.schedule('0 0 * * *', async () => {
+    cron.schedule('0 0 1 * *', async () => {
         try {
             const oneMonthAgo = new Date();
             oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
@@ -46,12 +46,13 @@ export const rejectedDoctorDelete = async () => {
             });
 
             if (rejectedDoctorDeleted.count > 0) {
-                console.log(`Cron: Deleted ${rejectedDoctorDeleted.count} rejected doctor(s) older than 1 month`);
+                console.log(
+                    `Cron: Deleted ${rejectedDoctorDeleted.count} rejected doctor(s) older than 1 month`);
             }
         } catch (error) {
-            console.log('Cron: Failed to delete rejected doctors older than 1 month', error);
+            console.log('Cron: Failed to delete rejected doctors', error);
         }
 
-        console.log('Rejected Doctor Delete cron is running (daily at midnight)...');
+        console.log('Rejected Doctor Delete cron: Running once every month...');
     });
 };

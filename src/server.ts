@@ -1,6 +1,6 @@
 import app from "./app";
 import config from "./app/config";
-import { unverifiedDoctorDelete } from "./app/lib/cron";
+import { rejectedDoctorDelete, unverifiedDoctorDelete } from "./app/lib/cron";
 import { transporter } from "./app/lib/nodemailer";
 import { prisma } from "./app/lib/prisma";
 import { redisClient } from "./app/lib/redis";
@@ -23,6 +23,7 @@ const main = async () => {
 		await seedTesterAdmin();
 		await seedTesterDoctor();
 		await unverifiedDoctorDelete()
+		await rejectedDoctorDelete()
 		app.listen(PORT, () => {
 			console.log(`Server is running on port, ${PORT}`);
 		});
