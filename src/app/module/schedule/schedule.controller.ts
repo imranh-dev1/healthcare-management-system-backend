@@ -58,9 +58,25 @@ const getScheduleById = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const updateSchedule = catchAsync(async (req: Request, res: Response) => {
+    const scheduleId = req.query.scheduleId as string;
+    const user = req.user!;
+    const payload = req.body;
+
+    const result = await ScheduleServices.updateSchedule(scheduleId, payload, user)
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Schedule updated successfully.",
+        data: result,
+    })
+})
+
 export const ScheduleController = {
     createSchedule,
     getMySchedules,
     getAllSchedules,
-    getScheduleById
+    getScheduleById,
+    updateSchedule
 }

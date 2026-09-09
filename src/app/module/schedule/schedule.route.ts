@@ -16,5 +16,7 @@ router.get("/schedules", auth(Role.ADMIN, Role.SUPER_ADMIN), ScheduleController.
 
 router.get("/:id", auth(Role.ADMIN, Role.SUPER_ADMIN, Role.DOCTOR), ScheduleController.getScheduleById);
 
+router.patch("/:id", auth(Role.DOCTOR), ScheduleController.updateSchedule);
+
 
 export const ScheduleRoutes = router;

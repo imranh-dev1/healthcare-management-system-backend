@@ -1,11 +1,12 @@
 import status from "http-status";
 import { RequestUser } from "../../middleware/checkAuth";
 import { AppError } from "../../utils/AppError";
-import { ICreateSchedule } from "./schedule.interface";
+import { ICreateSchedule, IUpdateSchedule } from "./schedule.interface";
 import { prisma } from "../../lib/prisma";
 import { addDays, differenceInMinutes, startOfDay } from "date-fns";
 import { IQuery } from "../../interface";
 import { ScheduleWhereInput } from "../../../generated/prisma/models";
+import { ScheduleStatus } from "../../../generated/prisma/enums";
 
 const createSchedule = async (payload: ICreateSchedule, user: RequestUser) => {
     const existingDoctor = await prisma.doctor.findUnique({
@@ -249,15 +250,94 @@ const getScheduleById = async (scheduleId: string) => {
     });
 
     if (!schedule || schedule.isDeleted) {
-        throw new AppError(status.BAD_REQUEST, "Schdule not found...!")
+        throw new AppError(status.NOT_FOUND, "Schedule not found...!")
     }
 
-    return getScheduleById;
+    return schedule;
 }
+
+const updateSchedule = async (scheduleId: string, payload: IUpdateSchedule, user: RequestUser) => {
+
+    const doctor = await prisma.doctor.findUnique({
+        where: {
+            id: user.userId,
+        }
+    });
+
+    if (!doctor) {
+        throw new AppError(status.NOT_FOUND, "Doctor not found.");
+    }
+
+    const existingSchedule = await prisma.schedule.findUnique({
+        where: {
+            id: scheduleId,
+            doctorId: doctor.id
+        }
+    });
+
+    if (!existingSchedule || existingSchedule.isDeleted) {
+        throw new AppError(status.NOT_FOUND, "Schedule not found.");
+    }
+
+    if (existingSchedule.status === ScheduleStatus.PUBLISHED && existingSchedule.totalSlots !== existingSchedule.availableSlots) {
+        throw new AppError(status.CONFLICT, "Cannot modify a published schedule that already has active bookings.")
+    }
+
+    payload.startDateTime = payload.startDateTime || existingSchedule.startDateTime
+    payload.endDateTime = payload.endDateTime || existingSchedule.endDateTime
+    payload.meetingLink = payload.meetingLink || existingSchedule.meetingLink
+
+    const startOfTheDay = startOfDay(payload.startDateTime);
+    const nextDay = addDays(startOfTheDay, 1);
+
+    const schedule = await prisma.schedule.findFirst({
+        where: {
+            doctorId: doctor.id,
+            isDeleted: false,
+            startDateTime: {
+                gte: startOfTheDay,
+                lt: nextDay
+            }
+        }
+    });
+
+    if (schedule) {
+        throw new AppError(status.CONFLICT, "Schedule already exists for the given date.");
+    }
+
+    const durationInMinutes = differenceInMinutes(payload.startDateTime, payload.endDateTime);
+
+    const MINUTES_ALLOCATED_PER_SLOT = 20;
+
+    const totalSlots = Math.floor(durationInMinutes / MINUTES_ALLOCATED_PER_SLOT);
+
+    const updatedSchedule = await prisma.schedule.update({
+        where: {
+            id: existingSchedule.id
+        },
+        data: {
+            doctorId: doctor.id,
+            startDateTime: payload.startDateTime,
+            endDateTime: payload.endDateTime,
+            meetingLink: payload.meetingLink,
+            totalSlots: totalSlots,
+            availableSlots: totalSlots,
+        },
+        include: {
+            doctor: true,
+            appointments: true
+        }
+    });
+
+    return updatedSchedule;
+}
+
+
 
 export const ScheduleServices = {
     createSchedule,
     getMySchedules,
     getAllSchedules,
-    getScheduleById
+    getScheduleById,
+    updateSchedule
 }
