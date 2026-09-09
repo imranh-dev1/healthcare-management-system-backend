@@ -141,7 +141,105 @@ const getMySchedules = async (query: IQuery, user: RequestUser) => {
 
 }
 
+const getAllSchedules = async (query: IQuery) => {
+
+    const sortBy = query.sortBy ? query.sortBy : "createdAt";
+    const sortOrder = query.sortOrder ? query.sortOrder : "desc"
+
+
+    let limit = 10;
+
+    if (query.limit) {
+        limit = Number(query.limit);
+    }
+
+    let page = 1;
+
+    if (query.page) {
+        page = Number(query.page);
+    }
+
+    const skip = (page - 1) * limit;
+
+    const andConditions: ScheduleWhereInput[] = [];
+
+    if (query.doctorId) {
+        andConditions.push({
+            doctorId: query.doctorId
+        })
+    }
+
+    if (query.email) {
+        andConditions.push({
+            doctor: {
+                email: query.email
+            }
+        })
+    }
+
+    if (query.status) {
+        andConditions.push({
+            status: query.status
+        })
+    }
+
+    if (query.searchTerm) {
+        andConditions.push({
+            doctor: {
+                OR: [
+                    { name: { contains: query.searchTerm, mode: "insensitive" } },
+                    { email: { contains: query.searchTerm, mode: "insensitive" } },
+                    {
+                        specialization: { contains: query.searchTerm, mode: "insensitive", },
+                    },
+                    
+                ],
+            }
+        });
+    }
+
+
+    const schedules = await prisma.schedule.findMany({
+        where: {
+            AND: andConditions
+        },
+        take: limit,
+        skip: skip,
+        orderBy: {
+            [sortBy]: sortOrder
+        },
+        include: {
+            doctor: true,
+            appointments: {
+                include: {
+                    patient: true
+                }
+            },
+
+        }
+    });
+
+    const totalSchedules = await prisma.schedule.count({
+        where: {
+            AND: andConditions
+        },
+
+    });
+
+    return {
+        data: schedules,
+        meta: {
+            page: page,
+            limit: limit,
+            total: Math.ceil(totalSchedules / limit)
+        }
+    };
+
+}
+
+
 export const ScheduleServices = {
     createSchedule,
-    getMySchedules
+    getMySchedules,
+    getAllSchedules
 }
