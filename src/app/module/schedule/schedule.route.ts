@@ -14,5 +14,7 @@ router.get("/my-schedules", auth(Role.DOCTOR), ScheduleController.getMySchedules
 
 router.get("/schedules", auth(Role.ADMIN, Role.SUPER_ADMIN), ScheduleController.getAllSchedules);
 
+router.get("/:id", auth(Role.ADMIN, Role.SUPER_ADMIN, Role.DOCTOR), ScheduleController.getScheduleById);
+
 
 export const ScheduleRoutes = router;
