@@ -73,10 +73,40 @@ const updateSchedule = catchAsync(async (req: Request, res: Response) => {
     })
 })
 
+const publishSchedule = catchAsync(async (req: Request, res: Response) => {
+    const scheduleId = req.query.scheduleId as string;
+    const user = req.user!;
+
+    const result = await ScheduleServices.publishSchedule(scheduleId, user)
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Schedule published successfully.",
+        data: result,
+    })
+})
+
+const deleteSchedule = catchAsync(async (req: Request, res: Response) => {
+    const scheduleId = req.query.scheduleId as string;
+    const user = req.user!;
+
+    const result = await ScheduleServices.deleteSchedule(scheduleId, user)
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Schedule deleted successfully.",
+        data: result,
+    })
+})
+
 export const ScheduleController = {
     createSchedule,
     getMySchedules,
     getAllSchedules,
     getScheduleById,
-    updateSchedule
+    updateSchedule,
+    publishSchedule,
+    deleteSchedule
 }

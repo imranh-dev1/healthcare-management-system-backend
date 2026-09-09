@@ -332,6 +332,79 @@ const updateSchedule = async (scheduleId: string, payload: IUpdateSchedule, user
     return updatedSchedule;
 }
 
+const publishSchedule = async (scheduleId: string, user: RequestUser) => {
+    const doctor = await prisma.doctor.findUnique({
+        where: {
+            id: user.userId,
+        }
+    });
+
+    if (!doctor) {
+        throw new AppError(status.NOT_FOUND, "Doctor not found.");
+    }
+
+    const existingSchedule = await prisma.schedule.findUnique({
+        where: {
+            id: scheduleId,
+            doctorId: doctor.id
+        }
+    });
+
+    if (!existingSchedule || existingSchedule.isDeleted) {
+        throw new AppError(status.NOT_FOUND, "Schedule not found.");
+    }
+
+    if (existingSchedule.status === ScheduleStatus.PUBLISHED) {
+        throw new AppError(status.CONFLICT, "Schedule already has Published...")
+    }
+
+    const publishedSchedule = await prisma.schedule.update({
+        where: {
+            id: existingSchedule.id,
+        },
+        data: {
+            status: ScheduleStatus.PUBLISHED
+        }
+    })
+
+    return publishedSchedule
+}
+
+const deleteSchedule = async (scheduleId: string, user: RequestUser) => {
+
+    const doctor = await prisma.doctor.findUnique({
+        where: {
+            id: user.userId,
+        }
+    });
+
+    if (!doctor) {
+        throw new AppError(status.NOT_FOUND, "Doctor not found.");
+    }
+
+    const existingSchedule = await prisma.schedule.findUnique({
+        where: {
+            id: scheduleId,
+            doctorId: doctor.id
+        }
+    });
+
+    if (!existingSchedule || existingSchedule.isDeleted) {
+        throw new AppError(status.NOT_FOUND, "Schedule not found.");
+    }
+
+    if (existingSchedule.status === ScheduleStatus.PUBLISHED && existingSchedule.totalSlots !== existingSchedule.availableSlots) {
+        throw new AppError(status.CONFLICT, "Cannot delete a published schedule that already has active bookings.");
+    }
+
+    const deletedSchedule = await prisma.schedule.delete({
+        where: {
+            id: existingSchedule.id,
+        },
+    })
+
+    return deletedSchedule
+}
 
 
 export const ScheduleServices = {
@@ -339,5 +412,7 @@ export const ScheduleServices = {
     getMySchedules,
     getAllSchedules,
     getScheduleById,
-    updateSchedule
+    updateSchedule,
+    publishSchedule,
+    deleteSchedule
 }

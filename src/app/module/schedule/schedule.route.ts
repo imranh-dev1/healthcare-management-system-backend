@@ -18,5 +18,9 @@ router.get("/:id", auth(Role.ADMIN, Role.SUPER_ADMIN, Role.DOCTOR), ScheduleCont
 
 router.patch("/:id", auth(Role.DOCTOR), ScheduleController.updateSchedule);
 
+router.patch("/:id", auth(Role.DOCTOR), ScheduleController.updateSchedule);
+
+router.delete("/:id", auth(Role.DOCTOR), ScheduleController.deleteSchedule);
+
 
 export const ScheduleRoutes = router;
