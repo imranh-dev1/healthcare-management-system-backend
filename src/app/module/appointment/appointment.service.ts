@@ -1,19 +1,99 @@
-import { AppointmentStatus, PaymentStatus } from "../../../generated/prisma/enums";
+import status from "http-status";
+import { AppointmentStatus, PaymentStatus, ScheduleStatus } from "../../../generated/prisma/enums";
 import config from "../../config";
 import { getBikashGrantIdToken } from "../../lib/bikash"
 import { prisma } from "../../lib/prisma";
 import { RequestUser } from "../../middleware/checkAuth";
 import { AppError } from "../../utils/AppError";
+import { IBookAppoinmentPayload } from "./appointment.interface";
+import { isBefore, isSameDay } from "date-fns";
 
-const bookAppointment = async (payload: any, user: RequestUser) => {
+const bookAppointment = async (payload: IBookAppoinmentPayload, user: RequestUser) => {
 
     const bikashIdToken = await getBikashGrantIdToken();
+
+    const patient = await prisma.patient.findUnique({
+        where: {
+            id: user.userId
+        }
+    })
+
+    if (!patient) {
+        throw new AppError(status.NOT_FOUND, "Pataint Not Found")
+    }
+
+    const schedule = await prisma.schedule.findUnique({
+        where: {
+            id: payload.scheduleId
+        },
+        include: {
+            doctor: true
+        }
+    })
+
+    if (!schedule || schedule.isDeleted) {
+        throw new AppError(status.NOT_FOUND, "Schedule not found")
+    }
+
+    if (schedule.status !== ScheduleStatus.PUBLISHED) {
+        throw new AppError(status.BAD_REQUEST, "This Schedule is not pubished Yet")
+    }
+
+    const now = new Date()
+
+    if (isSameDay(now, schedule.startDateTime)) {
+        throw new AppError(status.BAD_REQUEST, "This Schedule is not Available Today")
+    }
+
+    if (!isBefore(now, schedule.startDateTime)) {
+        throw new AppError(status.BAD_REQUEST, "This Schedule Has already Started")
+    }
+
+    const existingAppoinment = await prisma.appointment.findFirst({
+        where: {
+            patientId: patient.id,
+            scheduleId: schedule.id,
+            // status: {
+            //     not: AppointmentStatus.CANCELLED
+            // }
+        },
+
+    })
+
+    if (existingAppoinment?.status === AppointmentStatus.PENDING) {
+        throw new AppError(status.BAD_REQUEST, "You Already Have A Pending Appoinment. Please Pay for That")
+    }
+
+    if (existingAppoinment?.status === AppointmentStatus.CONFIRMED) {
+        throw new AppError(status.BAD_REQUEST, "You Already Have A Confirmed Appoinment.")
+    }
+
+    if (existingAppoinment?.status === AppointmentStatus.ONGOING) {
+        throw new AppError(status.BAD_REQUEST, "You Already Have A Ongoing Appoinment.")
+    }
+
+    if (existingAppoinment?.status === AppointmentStatus.COMPLETED) {
+        throw new AppError(status.BAD_REQUEST, "You Already Have A Completed Appoinment on this Schedule, Please Try Again Another day")
+    }
+
+    if (schedule.availableSlots === 0) {
+        throw new AppError(status.BAD_REQUEST, "This Schedule Is Fully Booked")
+    }
+
+    if (!schedule.doctor.consultationFee) {
+        throw new AppError(status.BAD_REQUEST, "Doctor Has Not Set A Consultation Fee Yet")
+    }
+
+    const amount = schedule.doctor.consultationFee.toString();
 
     const bookAppointmentTransitionResult = await prisma.$transaction(async (tx) => {
 
         const appointment = await tx.appointment.create({
             data: {
                 status: AppointmentStatus.PENDING,
+                patientId: patient.id,
+                doctorId: schedule.doctor.id,
+                scheduleId: schedule.id,
             },
         });
 
@@ -30,7 +110,7 @@ const bookAppointment = async (payload: any, user: RequestUser) => {
                 payerReference: user.email,
                 callbackURL: `${config.bikash_callback_url}/appointment/book-appointment/payment/callback`,
                 merchantAssociationInfo: "MI05MID54RF09123456One",
-                amount: "1000",
+                amount: amount,
                 currency: "BDT",
                 intent: "sale",
                 merchantInvoiceNumber: appointment.id
@@ -43,7 +123,7 @@ const bookAppointment = async (payload: any, user: RequestUser) => {
 
         await tx.payment.create({
             data: {
-                amount: "1000",
+                amount: amount,
                 merchentInvoiceNumber: createPaymentResult.merchantInvoiceNumber,
                 appointmentId: appointment.id,
                 getewayResponse: createPaymentResult,
