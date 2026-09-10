@@ -22,5 +22,7 @@ router.patch("/:id", auth(Role.DOCTOR), ScheduleController.updateSchedule);
 
 router.delete("/:id", auth(Role.DOCTOR), ScheduleController.deleteSchedule);
 
+router.get("/todays-schedules", ScheduleController.getTodaysSchedules);
+
 
 export const ScheduleRoutes = router;

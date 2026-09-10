@@ -101,6 +101,19 @@ const deleteSchedule = catchAsync(async (req: Request, res: Response) => {
     })
 })
 
+const getTodaysSchedules = catchAsync(async (req: Request, res: Response) => {
+    const query = req.query;
+
+    const result = await ScheduleServices.getTodaysSchedules(query);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Today's schedules retrieved successfully.",
+        data: result,
+    });
+});
+
 export const ScheduleController = {
     createSchedule,
     getMySchedules,
@@ -108,5 +121,6 @@ export const ScheduleController = {
     getScheduleById,
     updateSchedule,
     publishSchedule,
-    deleteSchedule
+    deleteSchedule,
+    getTodaysSchedules
 }
