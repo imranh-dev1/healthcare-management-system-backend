@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Confirmed - PH Healthcare</title>
+</head>
+<body style="
+    margin:0;
+    padding:0;
+    background-color:#f4f7fb;
+    font-family:Arial, Helvetica, sans-serif;
+">
+    <div style="padding:40px 20px;">
+        <div style="
+            max-width:600px;
+            margin:0 auto;
+            background:#ffffff;
+            border-radius:12px;
+            overflow:hidden;
+            box-shadow:0 4px 15px rgba(0,0,0,0.08);
+        ">
+
+            <!-- Header -->
+            <div style="
+                padding:28px 32px;
+                background:#0f766e;
+                text-align:center;
+            ">
+                <h1 style="
+                    margin:0;
+                    color:#ffffff;
+                    font-size:24px;
+                    font-weight:700;
+                ">
+                    PH Healthcare
+                </h1>
+            </div>
+
+            <!-- Content -->
+            <div style="padding:35px 32px;">
+
+                <h2 style="
+                    margin:0 0 16px;
+                    color:#1f2937;
+                    font-size:22px;
+                    font-weight:600;
+                ">
+                    Appointment Confirmed
+                </h2>
+
+                <p style="
+                    margin:0 0 20px;
+                    color:#4b5563;
+                    font-size:15px;
+                    line-height:1.6;
+                ">
+                    Dear <strong><%= patientName %></strong>,
+                </p>
+
+                <p style="
+                    margin:0 0 20px;
+                    color:#4b5563;
+                    font-size:15px;
+                    line-height:1.6;
+                ">
+                    Your payment was successful and your appointment has been officially confirmed. 
+                    Please find the details of your upcoming visit below.
+                </p>
+
+                <!-- Status Block (Matching Rejection Status Layout) -->
+                <div style="
+                    margin:28px 0;
+                    padding:22px;
+                    background:#f0fdf4;
+                    border:1px solid #bbf7d0;
+                    border-radius:8px;
+                    text-align:center;
+                ">
+                    <p style="
+                        margin:0 0 10px;
+                        color:#64748b;
+                        font-size:13px;
+                    ">
+                        Booking Status
+                    </p>
+
+                    <div style="
+                        font-size:24px;
+                        font-weight:700;
+                        color:#16a34a;
+                    ">
+                        CONFIRMED & PAID
+                    </div>
+                </div>
+
+                <!-- Appointment Details Block (Matching Rejection Reason Layout Style) -->
+                <div style="
+                    margin:24px 0;
+                    padding:16px;
+                    background:#f0fdfa;
+                    border-left:4px solid #0f766e;
+                    border-radius:4px;
+                ">
+                    <p style="
+                        margin:0 0 8px;
+                        color:#0f766e;
+                        font-size:13px;
+                        font-weight:700;
+                    ">
+                        Appointment Details
+                    </p>
+
+                    <p style="
+                        margin:0 0 6px;
+                        color:#4b5563;
+                        font-size:14px;
+                        line-height:1.6;
+                    ">
+                        <strong>Doctor:</strong> <%= doctorName %>
+                    </p>
+                    <p style="
+                        margin:0 0 6px;
+                        color:#4b5563;
+                        font-size:14px;
+                        line-height:1.6;
+                    ">
+                        <strong>Date:</strong> <%= appointmentDate %>
+                    </p>
+                    <p style="
+                        margin:0 0 6px;
+                        color:#4b5563;
+                        font-size:14px;
+                        line-height:1.6;
+                    ">
+                        <strong>Time Slot:</strong> <%= appointmentTime %>
+                    </p>
+                    <p style="
+                        margin:0;
+                        color:#4b5563;
+                        font-size:14px;
+                        line-height:1.6;
+                    ">
+                        <strong>Amount Paid:</strong> <%= paymentAmount %> BDT
+                    </p>
+                </div>
+
+                <p style="
+                    margin:0 0 12px;
+                    color:#4b5563;
+                    font-size:14px;
+                    line-height:1.6;
+                ">
+                    Please make sure to join the session or arrive at least 10 minutes before your scheduled slot. 
+                </p>
+
+                <p style="
+                    margin:0;
+                    color:#4b5563;
+                    font-size:14px;
+                    line-height:1.6;
+                ">
+                    You can manage or view your appointments anytime by logging into your patient dashboard.
+                </p>
+
+                <!-- Notice -->
+                <div style="
+                    margin-top:24px;
+                    padding:14px 16px;
+                    background:#f8fafc;
+                    border-left:4px solid #64748b;
+                    border-radius:4px;
+                ">
+                    <p style="
+                        margin:0;
+                        color:#475569;
+                        font-size:13px;
+                        line-height:1.5;
+                ">
+                        <strong>Need to reschedule?</strong>
+                        Please contact the support team or update your profile context if you need to modify your booking hours.
+                    </p>
+                </div>
+
+                <!-- Closing -->
+                <p style="
+                    margin:30px 0 0;
+                    color:#6b7280;
+                    font-size:14px;
+                    line-height:1.6;
+                ">
+                    Thank you for choosing us.<br><br>
+
+                    Regards,<br>
+
+                    <strong style="color:#374151;">
+                        PH Healthcare Team
+                    </strong>
+                </p>
+
+            </div>
+
+            <!-- Footer -->
+            <div style="
+                padding:20px 32px;
+                background:#f8fafc;
+                text-align:center;
+            ">
+                <p style="
+                    margin:0;
+                    color:#94a3b8;
+                    font-size:12px;
+                ">
+                    © <%= year %> PH Healthcare. All rights reserved.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
