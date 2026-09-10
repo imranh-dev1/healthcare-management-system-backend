@@ -3,7 +3,7 @@ import { RequestUser } from "../../middleware/checkAuth";
 import { AppError } from "../../utils/AppError";
 import { ICreateSchedule, IUpdateSchedule } from "./schedule.interface";
 import { prisma } from "../../lib/prisma";
-import { addDays, differenceInMinutes, startOfDay } from "date-fns";
+import { addDays, differenceInMinutes, isAfter, isSameDay, startOfDay } from "date-fns";
 import { IQuery } from "../../interface";
 import { ScheduleWhereInput } from "../../../generated/prisma/models";
 import { ScheduleStatus } from "../../../generated/prisma/enums";
@@ -17,6 +17,14 @@ const createSchedule = async (payload: ICreateSchedule, user: RequestUser) => {
 
     if (!existingDoctor) {
         throw new AppError(status.NOT_FOUND, "Doctor not found.");
+    }
+
+    if (!isSameDay(payload.startDateTime, payload.endDateTime)) {
+        throw new AppError(status.CONFLICT, "Start Date Time and End date time Must be ib the same Day")
+    }
+
+    if (isAfter(payload.startDateTime, payload.endDateTime)) {
+        throw new AppError(status.CONFLICT, "Start Date Time cannot be After End Date Time")
     }
 
     const startOfTheDay = startOfDay(payload.startDateTime);
@@ -286,6 +294,14 @@ const updateSchedule = async (scheduleId: string, payload: IUpdateSchedule, user
     payload.startDateTime = payload.startDateTime || existingSchedule.startDateTime
     payload.endDateTime = payload.endDateTime || existingSchedule.endDateTime
     payload.meetingLink = payload.meetingLink || existingSchedule.meetingLink
+
+    if (!isSameDay(payload.startDateTime, payload.endDateTime)) {
+        throw new AppError(status.CONFLICT, "Start Date Time and End date time Must be ib the same Day")
+    }
+
+    if (isAfter(payload.startDateTime, payload.endDateTime)) {
+        throw new AppError(status.CONFLICT, "Start Date Time cannot be After End Date Time")
+    }
 
     const startOfTheDay = startOfDay(payload.startDateTime);
     const nextDay = addDays(startOfTheDay, 1);
