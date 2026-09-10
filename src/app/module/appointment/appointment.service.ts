@@ -148,6 +148,13 @@ const payAppointment = async (payload: any, user: RequestUser) => {
     const existingAppointment = await prisma.appointment.findUnique({
         where: {
             id: appointmentId
+        },
+        include: {
+            schedule: {
+                include: {
+                    doctor: true
+                }
+            }
         }
     });
 
@@ -158,6 +165,12 @@ const payAppointment = async (payload: any, user: RequestUser) => {
     if (existingAppointment.status !== "PENDING") {
         throw new AppError(400, "Appointment Is Not Pending!");
     }
+
+    if (!existingAppointment.schedule.doctor.consultationFee) {
+        throw new AppError(status.BAD_REQUEST, "Doctor Has Not set A Consultation Fee Yet");
+    }
+
+    const amount = existingAppointment.schedule.doctor.consultationFee.toString();
 
     const createPaymentResponse = await fetch(`${config.bikash_sendbox_url}/tokenized/checkout/create`, {
         method: "POST",
@@ -172,7 +185,7 @@ const payAppointment = async (payload: any, user: RequestUser) => {
             payerReference: user.email,
             callbackURL: `${config.bikash_callback_url}/appointment/book-appointment/payment/callback`,
             merchantAssociationInfo: "MI05MID54RF09123456One",
-            amount: "500",
+            amount: amount,
             currency: "BDT",
             intent: "sale",
             merchantInvoiceNumber: existingAppointment.id
