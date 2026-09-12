@@ -13,4 +13,6 @@ router.get("/book-appointment/payment/callback", AppointmentController.bookAppoi
 
 router.post("/cancel-appointment", auth(Role.PATIENT, Role.ADMIN, Role.SUPER_ADMIN), AppointmentController.cancelAppointment);
 
+router.patch("/:appointmentId/status", auth(Role.DOCTOR), AppointmentController.updateAppointmentStatus);
+
 export const AppointmentRoutes = router;
