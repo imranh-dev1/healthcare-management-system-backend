@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Your Prescription - PH Healthcare</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f9;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333333;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            padding: 40px 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .header {
+            padding: 25px 30px;
+            text-align: center;
+            background-color: #0f766e;
+            color: #ffffff;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+        }
+
+        .header p {
+            margin: 8px 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 35px 30px;
+        }
+
+        .content h2 {
+            margin-top: 0;
+            font-size: 22px;
+            color: #222222;
+        }
+
+        .content p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #555555;
+        }
+
+        .prescription-box {
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #f0fdfa;
+            border-left: 4px solid #0f766e;
+            border-radius: 6px;
+        }
+
+        .prescription-box p {
+            margin: 5px 0;
+        }
+
+        .attachment {
+            margin: 25px 0;
+            padding: 15px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .attachment strong {
+            color: #0f766e;
+        }
+
+        .footer {
+            padding: 20px 30px;
+            text-align: center;
+            background-color: #f8fafc;
+            border-top: 1px solid #eeeeee;
+        }
+
+        .footer p {
+            margin: 5px 0;
+            font-size: 12px;
+            color: #888888;
+            line-height: 1.5;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 20px 10px;
+            }
+
+            .content {
+                padding: 25px 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="email-wrapper">
+
+        <div class="container">
+
+            <!-- Header -->
+            <div class="header">
+                <h1>PH Healthcare</h1>
+                <p>Healthcare Management System</p>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+
+                <h2>Your Prescription is Ready</h2>
+
+                <p>
+                    Dear <%= patientName || "Patient" %>,
+                </p>
+
+                <p>
+                    Your prescription has been prepared by your doctor following
+                    your recent appointment with <strong>PH Healthcare</strong>.
+                </p>
+
+                <div class="prescription-box">
+
+                    <p>
+                        <strong>Doctor:</strong>
+                        <%= doctorName || "Your Doctor" %>
+                    </p>
+
+                    <% if (appointmentDate) { %>
+                        <p>
+                            <strong>Appointment Date:</strong>
+                            <%= appointmentDate %>
+                        </p>
+                    <% } %>
+
+                    <% if (appointmentId) { %>
+                        <p>
+                            <strong>Appointment ID:</strong>
+                            <%= appointmentId %>
+                        </p>
+                    <% } %>
+
+                </div>
+
+                <p>
+                    Please find your prescription attached to this email as a
+                    PDF document. We recommend keeping this document for your
+                    medical records and future reference.
+                </p>
+
+                <div class="attachment">
+                    📄 <strong>prescription.pdf</strong>
+                    <br />
+                    <span>
+                        Your prescription is attached to this email.
+                    </span>
+                </div>
+
+                <p>
+                    If you have any questions regarding your prescription,
+                    please contact your healthcare provider.
+                </p>
+
+                <p>
+                    Thank you for choosing <strong>PH Healthcare</strong>.
+                </p>
+
+                <p>
+                    Best regards,<br />
+                    <strong>PH Healthcare Team</strong>
+                </p>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+
+                <p>
+                    © <%= year %> PH Healthcare. All rights reserved.
+                </p>
+
+                <p>
+                    This is an automated email. Please do not reply directly
+                    to this message.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html> 
