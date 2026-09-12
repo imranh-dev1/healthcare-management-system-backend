@@ -51,7 +51,8 @@ const bookAppointmentCallback = catchAsync(async (req: Request, res: Response) =
 
 const cancelAppointment = catchAsync(async (req: Request, res: Response) => {
     const payload = req.body;
-    const result = await AppointmentServices.cancleAppointment(payload)
+    const user = req.user!
+    const result = await AppointmentServices.cancleAppointment(payload, user)
 
     sendResponse(res, {
         statusCode: httpStatus.OK,

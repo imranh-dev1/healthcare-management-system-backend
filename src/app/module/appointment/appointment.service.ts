@@ -6,7 +6,7 @@ import { prisma } from "../../lib/prisma";
 import { RequestUser } from "../../middleware/checkAuth";
 import { AppError } from "../../utils/AppError";
 import { IBookAppoinmentPayload } from "./appointment.interface";
-import { addMinutes, isBefore, isSameDay } from "date-fns";
+import { addMinutes, isBefore, isSameDay, subHours } from "date-fns";
 import sendEmail from "../../utils/sendEmail";
 import PDFDocument from "pdfkit"
 
@@ -374,7 +374,7 @@ const bookAppointmentCallback = async (query: Record<string, any>) => {
                     {
                         fileName: "invoice.pdf",
                         content: pdfBuffer
-                    } 
+                    }
                 ]
             });
 
@@ -424,17 +424,21 @@ const bookAppointmentCallback = async (query: Record<string, any>) => {
     return bookAppointmentCallbackTransitionResult
 };
 
-const cancleAppointment = async (payload: any) => {
+const cancleAppointment = async (payload: any, user: RequestUser) => {
 
     const transactionResult = await prisma.$transaction(async (tx) => {
         const appointmentId = payload.appointmentId;
 
         const existingAppointment = await prisma.appointment.findUnique({
             where: {
-                id: appointmentId
+                id: appointmentId,
+                patient: {
+                    email: user.email
+                }
             },
             include: {
-                payment: true
+                payment: true,
+                schedule: true
             }
 
         });
@@ -456,55 +460,82 @@ const cancleAppointment = async (payload: any) => {
                 id: existingAppointment.id
             },
             data: {
-                status: 'CANCELLED'
+                status: AppointmentStatus.CANCELLED,
             }
         })
 
-        const bikashIdToken = await getBikashGrantIdToken();
-
-        if (!bikashIdToken) {
-            throw new AppError(502, "No Bkash Access Token Found!");
-        }
-
-        const refundPaymentResponse = await fetch(`${config.bikash_sendbox_url}/tokenized/checkout/payment/refund`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                Authorization: bikashIdToken,
-                "X-App-Key": config.bikash_app_key,
-            },
-            body: JSON.stringify({
-                paymentID: existingAppointment.payment?.bkashPaymentId,
-                trxID: existingAppointment.payment?.bkashTrxId,
-                amount: existingAppointment.payment?.amount.toString(),
-                sku: "Appointment Canceletion",
-                reason: "Patient Cancelled The Appointment"
-
-            })
-        })
-
-        const refundPaymentResult = await refundPaymentResponse.json();
-
-        const updatePayment = await tx.payment.update({
+        await prisma.schedule.update({
             where: {
-                appointmentId: existingAppointment.id,
+                id: existingAppointment.schedule.id,
             },
             data: {
-                refundTrxId: refundPaymentResult.refundTrxID,
-                refundedAt: refundPaymentResult.completedTime,
-                refundAmount: refundPaymentResult.amount,
-                refundReason: "Patient Cancelled The Appointment",
-                status: PaymentStatus.REFUNDED,
-                getewayResponse: refundPaymentResult,
+                availableSlots: {
+                    increment: 1
+                }
             }
         })
 
-        console.log("refund", { refundPaymentResult }, "UpdatePayment", updatePayment)
+        // refund Process 
+        const now = new Date();
+
+        const startDateTime = existingAppointment.schedule.startDateTime;
+        const refundCutOfTime = subHours(startDateTime, 1);
+
+        const isEligbleForRefund = isBefore(now, refundCutOfTime);
+
+        if (isEligbleForRefund) {
+            const bikashIdToken = await getBikashGrantIdToken();
+
+            if (!bikashIdToken) {
+                throw new AppError(502, "No Bkash Access Token Found!");
+            }
+
+            const refundPaymentResponse = await fetch(`${config.bikash_sendbox_url}/tokenized/checkout/payment/refund`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                    Authorization: bikashIdToken,
+                    "X-App-Key": config.bikash_app_key,
+                },
+                body: JSON.stringify({
+                    paymentID: existingAppointment.payment?.bkashPaymentId,
+                    trxID: existingAppointment.payment?.bkashTrxId,
+                    amount: existingAppointment.payment?.amount.toString(),
+                    sku: "Appointment Canceletion",
+                    reason: "Patient Cancelled The Appointment"
+
+                })
+            })
+
+            const refundPaymentResult = await refundPaymentResponse.json();
+
+            const updatePayment = await tx.payment.update({
+                where: {
+                    appointmentId: existingAppointment.id,
+                },
+                data: {
+                    refundTrxId: refundPaymentResult.refundTrxID,
+                    refundedAt: refundPaymentResult.completedTime,
+                    refundAmount: refundPaymentResult.amount,
+                    refundReason: "Patient Cancelled The Appointment",
+                    status: PaymentStatus.REFUNDED,
+                    getewayResponse: refundPaymentResult,
+                }
+            })
+
+            console.log("refund", { refundPaymentResult }, "UpdatePayment", updatePayment)
+        }
+
+        const newPaymentInfo = await prisma.payment.findUnique({
+            where: {
+                appointmentId: existingAppointment.id,
+            }
+        })
 
         return {
             appointment: updatedAppointment,
-            payment: updatePayment
+            payment: newPaymentInfo
         }
     });
 
