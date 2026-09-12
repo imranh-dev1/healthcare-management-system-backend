@@ -3,11 +3,17 @@ import path from "path";
 import { transporter } from "../lib/nodemailer";
 import config from "../config";
 
+interface EmailAttachment {
+    fileName: string;
+    content: Buffer;
+}
+
 interface SendEmailOptions {
     to: string;
     subject: string;
     template: string;
     data?: Record<string, unknown>;
+    attachments?: EmailAttachment[];
 }
 
 const sendEmail = async ({
@@ -15,6 +21,7 @@ const sendEmail = async ({
     subject,
     template,
     data = {},
+    attachments,
 }: SendEmailOptions) => {
     const templatePath = path.join(
         process.cwd(),
@@ -30,11 +37,17 @@ const sendEmail = async ({
     });
 
     await transporter.sendMail({
-        from: `"PH Healthcare" <${config.smtp_emai_sender}>`,
+        from: `"PH Healthcare" < ${config.smtp_emai_sender}> `,
         to,
         subject,
         html,
+        ...(attachments?.length ? {
+            attachments: attachments.map((attachment) => ({
+                filename: attachment.fileName,
+                content: attachment.content,
+            }))
+        } : {}),
     });
 };
 
-export default sendEmail;
+export default sendEmail; 

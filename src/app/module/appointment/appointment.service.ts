@@ -8,6 +8,7 @@ import { AppError } from "../../utils/AppError";
 import { IBookAppoinmentPayload } from "./appointment.interface";
 import { addMinutes, isBefore, isSameDay } from "date-fns";
 import sendEmail from "../../utils/sendEmail";
+import PDFDocument from "pdfkit"
 
 const bookAppointment = async (payload: IBookAppoinmentPayload, user: RequestUser) => {
 
@@ -256,7 +257,8 @@ const bookAppointmentCallback = async (query: Record<string, any>) => {
                 },
                 include: {
                     schedule: true,
-                    patient: true
+                    patient: true,
+                    doctor: true
                 }
             })
 
@@ -306,10 +308,74 @@ const bookAppointmentCallback = async (query: Record<string, any>) => {
 
             });
 
+            const pdfDocument = new PDFDocument({
+                size: "A4",
+                margin: 50,
+            });
+
+            const pdfChuncks: Buffer[] = []
+
+            pdfDocument.on("data", (chunck: Buffer) => {
+                pdfChuncks.push(chunck)
+            })
+
+            const pdfReadyPromise = new Promise<Buffer>((resolve) => {
+                pdfDocument.on("end", () => {
+                    resolve(Buffer.concat(pdfChuncks))
+                })
+            })
+
+            pdfDocument.fontSize(22).text("Healthcare Management System", {
+                align: "center",
+            });
+
+            pdfDocument.moveDown();
+
+            pdfDocument.fontSize(14).text("Appointment Invoice", {
+                align: "center",
+            });
+
+            pdfDocument.moveDown(2);
+
+            pdfDocument.fontSize(12).text(`Patient Name: ${appointment.patient.name}`);
+            pdfDocument.fontSize(12).text(`Patient Email: ${appointment.patient.email}`);
+
+            pdfDocument.moveDown();
+
+            pdfDocument.fontSize(12).text(`Doctor Name: ${appointment.doctor.name}`);
+            pdfDocument.fontSize(12).text(`Doctor Email: ${appointment.doctor.specialization}`);
+
+            pdfDocument.moveDown();
+
+            pdfDocument.fontSize(12).text(`Appointment Date: ${appointment.schedule.startDateTime.toDateString()}`);
+
+            pdfDocument.fontSize(12).text(`Your Joinig Time: ${joiningTime.toString()}`);
+
+            pdfDocument.fontSize(12).text(`Your Serial Number: ${serialNumber}`);
+
+            pdfDocument.fontSize(12).text(`Your Meeting Link: ${appointment.schedule.meetingLink}`);
+
+            pdfDocument.moveDown();
+
+            pdfDocument.fontSize(14).text(`Amount Paid: ${executePaymentResult.amount} BDT`);
+            pdfDocument.fontSize(14).text(`Payment Method: Bikash`);
+            pdfDocument.fontSize(14).text(`Transaction Id: ${executePaymentResult.trxID}`);
+            pdfDocument.fontSize(14).text(`Paid At: ${executePaymentResult.paymentExicuteTime}`);
+
+            pdfDocument.end();
+
+            const pdfBuffer = await pdfReadyPromise;
+
             await sendEmail({
                 to: appointment.patient.email,
                 subject: "Your Appointment is Confirmed! - PH Healthcare",
                 template: "appointment-confirmation",
+                attachments: [
+                    {
+                        fileName: "invoice.pdf",
+                        content: pdfBuffer
+                    } 
+                ]
             });
 
             return {
