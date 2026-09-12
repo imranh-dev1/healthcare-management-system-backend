@@ -76,10 +76,67 @@ const updateAppointmentStatus = catchAsync(async (req: Request, res: Response) =
     });
 });
 
+const getMyAppointments = catchAsync(async (req: Request, res: Response) => {
+    const user = req.user!
+    const query = req.query;
+
+    const { data, meta } = await AppointmentServices.getMyAppointments(query, user);
+    sendResponse(res, {
+        statusCode: httpStatus.OK, success: true,
+        message: "My appointments retrieved successfully",
+        data: {
+            data,
+            meta
+        },
+    });
+});
+
+const getDoctorAppointments = catchAsync(async (req: Request, res: Response) => {
+    const user = req.user!
+    const query = req.query;
+    const { data, meta } = await AppointmentServices.getDoctorAppointments(query, user);
+    sendResponse(res, {
+        statusCode: httpStatus.OK, success: true,
+        message: "Doctor appointments retrieved successfully",
+        data: {
+            data,
+            meta
+        },
+    });
+});
+
+const getAllAppointments = catchAsync(async (req: Request, res: Response) => {
+    const { data, meta } = await AppointmentServices.getAllAppointments(req.query);
+    sendResponse(res, {
+        statusCode: httpStatus.OK, success: true,
+        message: "All appointments retrieved successfully",
+        data: {
+            data,
+            meta
+        },
+    });
+});
+
+const getSingleAppointment = catchAsync(async (req: Request, res: Response) => {
+    const user = req.user!
+    const { appointmentId } = req.params;
+
+    const result = await AppointmentServices.getSingleAppointment(appointmentId as string, user);
+    sendResponse(res, {
+        statusCode: httpStatus.OK, success: true,
+        message: "Appointment retrieved successfully",
+        data: result,
+    });
+});
+
 export const AppointmentController = {
     bookAppointment,
     payAppointment,
     bookAppointmentCallback,
     cancelAppointment,
-    updateAppointmentStatus
+    updateAppointmentStatus,
+    getMyAppointments,
+    getDoctorAppointments,
+    getAllAppointments,
+    getSingleAppointment
 }
