@@ -4,7 +4,7 @@ import { DoctorController } from "./doctor.controller";
 import { auth } from "../../middleware/checkAuth";
 import { Role } from "../../../generated/prisma/enums";
 import { validateRequest } from "../../middleware/validateRequest";
-import { ApproveDoctorValidationSchema } from "./doctor.validation";
+import { ApproveDoctorValidationSchema, DoctorValidation } from "./doctor.validation";
 
 const router = Router();
 
@@ -16,5 +16,15 @@ router.post("/applying-as-doctor", upload.fields([
 router.post("/applying-as-doctor/email-verify", auth(Role.DOCTOR), DoctorController.verifiDoctorEmail)
 router.post("/approved-doctor", auth(Role.ADMIN, Role.SUPER_ADMIN), validateRequest(ApproveDoctorValidationSchema), DoctorController.approvedDoctor)
 router.get("/all-doctors", auth(Role.ADMIN, Role.SUPER_ADMIN), validateRequest(ApproveDoctorValidationSchema), DoctorController.getAllDoctors)
+router.patch("/update-my-profile", auth(Role.DOCTOR), validateRequest(DoctorValidation.updateDoctorSchema), DoctorController.updateMyDoctorProfile);
+
+// Public doctor list
+router.get("/public-doctors", DoctorController.getAllDoctorsListPublic);
+
+// Public single doctor profile
+router.get("/public-doctors/:doctorId", DoctorController.getSingleDoctorPublicProfile);
+
+// Available doctors by today's schedules
+router.get("/available-doctors-today", auth(Role.PATIENT), DoctorController.getAvailableDoctorByTodaysSchedule);
 
 export const DoctorRoutes = router;

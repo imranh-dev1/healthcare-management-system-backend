@@ -89,4 +89,58 @@ export const ApproveDoctorValidationSchema = z.object({
         .string()
         .trim()
         .max(500, "Rejection reason must not exceed 500 characters.")
-}); 
+});
+
+const updateDoctorSchema = z.object({
+    name: z
+        .string()
+        .min(2, "Name must be at least 2 characters")
+        .max(100, "Name cannot exceed 100 characters")
+        .optional(),
+
+    address: z
+        .string()
+        .max(255, "Address cannot exceed 255 characters")
+        .optional(),
+
+    specialization: z
+        .string()
+        .min(2, "Specialization must be at least 2 characters")
+        .max(100, "Specialization cannot exceed 100 characters")
+        .optional(),
+
+    qualification: z
+        .string()
+        .min(2, "Qualification must be at least 2 characters")
+        .max(150, "Qualification cannot exceed 150 characters")
+        .optional(),
+
+    experinenceYears: z
+        .number()
+        .int("Experience years must be a whole number")
+        .min(0, "Experience years cannot be negative")
+        .max(70, "Invalid experience years")
+        .optional(),
+
+    bio: z
+        .string()
+        .max(1000, "Bio cannot exceed 1000 characters")
+        .optional(),
+
+    consultationFee: z
+        .number()
+        .min(0, "Consultation fee cannot be negative")
+        .optional(),
+
+    contactNumber: z
+        .string()
+        .regex(
+            /^(?:\+8801|01)[3-9]\d{8}$/,
+            "Invalid Bangladeshi phone number"
+        )
+        .optional(),
+});
+
+export const DoctorValidation = {
+    updateDoctorSchema,
+}; 
