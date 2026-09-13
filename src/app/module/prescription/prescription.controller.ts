@@ -28,11 +28,11 @@ const createPrescription = catchAsync(
 // Get Single Prescription
 const getSinglePrescription = catchAsync(
     async (req: Request, res: Response) => {
-        const { appointmentId } = req.params;
+        const { prescriptionId } = req.params;
         const user = req.user!;
 
         const result = await PrescriptionServices.getSinglePrescription(
-            appointmentId as string,
+            prescriptionId as string,
             user
         );
 

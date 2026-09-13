@@ -34,9 +34,10 @@ const getAllPayments = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getSinglePayment = catchAsync(async (req: Request, res: Response) => {
-    const query = req.query;
+    const paymentId = req.params.paymentId as string;
+    const user = req.user!;
 
-    const result = await PaymentServices.getAllPayments(query);
+    const result = await PaymentServices.getSinglePayment(paymentId, user);
     sendResponse(res, {
         statusCode: httpStatus.OK, success: true,
         message: "Payments Data retrieved successfully",

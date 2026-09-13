@@ -47,7 +47,7 @@ const getAllSchedules = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getScheduleById = catchAsync(async (req: Request, res: Response) => {
-    const scheduleId = req.params.id as string;
+    const scheduleId = req.params.scheduleId as string;
     const result = await ScheduleServices.getScheduleById(scheduleId);
 
     sendResponse(res, {
@@ -59,7 +59,7 @@ const getScheduleById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateSchedule = catchAsync(async (req: Request, res: Response) => {
-    const scheduleId = req.query.scheduleId as string;
+    const scheduleId = req.params.scheduleId as string;
     const user = req.user!;
     const payload = req.body;
 
@@ -74,7 +74,7 @@ const updateSchedule = catchAsync(async (req: Request, res: Response) => {
 })
 
 const publishSchedule = catchAsync(async (req: Request, res: Response) => {
-    const scheduleId = req.query.scheduleId as string;
+    const scheduleId = req.params.scheduleId as string;
     const user = req.user!;
 
     const result = await ScheduleServices.publishSchedule(scheduleId, user)
@@ -88,7 +88,7 @@ const publishSchedule = catchAsync(async (req: Request, res: Response) => {
 })
 
 const deleteSchedule = catchAsync(async (req: Request, res: Response) => {
-    const scheduleId = req.query.scheduleId as string;
+    const scheduleId = req.params.scheduleId as string;
     const user = req.user!;
 
     const result = await ScheduleServices.deleteSchedule(scheduleId, user)

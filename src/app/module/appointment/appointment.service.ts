@@ -18,7 +18,7 @@ const bookAppointment = async (payload: IBookAppoinmentPayload, user: RequestUse
 
     const patient = await prisma.patient.findUnique({
         where: {
-            id: user.userId
+            userId: user.userId
         }
     })
 
@@ -549,7 +549,7 @@ const cancleAppointment = async (payload: ICancleAppoinmentPayload, user: Reques
 const updateAppoinmentStatus = async (appoinmentId: string, payload: IUpdateAppoinmentStatusPayload, user: RequestUser) => {
     const doctor = await prisma.doctor.findUnique({
         where: {
-            id: user.userId
+            userId: user.userId
         }
     })
 
@@ -631,7 +631,7 @@ const getMyAppointments = async (query: IQuery, user: RequestUser) => {
 
     const patient = await prisma.patient.findUnique({
         where: {
-            id: user.userId
+            userId: user.userId
         }
     })
 
@@ -689,7 +689,7 @@ const getDoctorAppointments = async (query: IQuery, user: RequestUser) => {
 
     const doctor = await prisma.doctor.findUnique({
         where: {
-            id: user.userId
+            userId: user.userId
         }
     })
 

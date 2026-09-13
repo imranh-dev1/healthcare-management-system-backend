@@ -268,7 +268,7 @@ const updateSchedule = async (scheduleId: string, payload: IUpdateSchedule, user
 
     const doctor = await prisma.doctor.findUnique({
         where: {
-            id: user.userId,
+            userId: user.userId,
         }
     });
 
@@ -351,7 +351,7 @@ const updateSchedule = async (scheduleId: string, payload: IUpdateSchedule, user
 const publishSchedule = async (scheduleId: string, user: RequestUser) => {
     const doctor = await prisma.doctor.findUnique({
         where: {
-            id: user.userId,
+            userId: user.userId,
         }
     });
 
@@ -390,7 +390,7 @@ const deleteSchedule = async (scheduleId: string, user: RequestUser) => {
 
     const doctor = await prisma.doctor.findUnique({
         where: {
-            id: user.userId,
+            userId: user.userId,
         }
     });
 

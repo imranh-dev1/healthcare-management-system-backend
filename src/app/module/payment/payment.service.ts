@@ -16,7 +16,7 @@ const getMyPayments = async (query: IQuery, user: RequestUser) => {
 
     const pataint = await prisma.patient.findUnique({
         where: {
-            id: user.userId
+            userId: user.userId
         }
     })
 
@@ -138,6 +138,14 @@ const getSinglePayment = async (paymentId: string, user: RequestUser) => {
         include: {
             appointment: {
                 include: {
+                    patient: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            userId: true
+                        }
+                    },
                     doctor: {
                         select: {
                             id: true,
@@ -156,7 +164,7 @@ const getSinglePayment = async (paymentId: string, user: RequestUser) => {
     }
 
     if (user.role === Role.PATIENT) {
-        if (payment.appointment.patientId !== user.userId) {
+        if (payment.appointment.patient.userId !== user.userId) {
             throw new AppError(httpStatus.FORBIDDEN, "You are Allowed to view this Payment")
         }
     }
