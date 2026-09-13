@@ -1,4 +1,4 @@
-import { AppointmentStatus, DoctorVerificationStatus, ScheduleStatus } from "../../../generated/prisma/enums"
+import { AppointmentStatus, DoctorVerificationStatus, PaymentStatus, ScheduleStatus } from "../../../generated/prisma/enums"
 import { prisma } from "../../lib/prisma"
 import { RequestUser } from "../../middleware/checkAuth"
 import { AppError } from "../../utils/AppError"
@@ -67,6 +67,28 @@ const getAdminAnalytics = async () => {
         }
     })
 
+    const totalRefundResult = await prisma.payment.aggregate({
+        where: {
+            status: PaymentStatus.REFUNDED
+        },
+        _sum: {
+            amount: true
+        }
+    })
+
+    const totalRefund = totalRefundResult._sum.amount?.toNumber() || 0
+
+    const totalRevenueResult = await prisma.payment.aggregate({
+        where: {
+            status: PaymentStatus.PAID
+        },
+        _sum: {
+            amount: true
+        }
+    })
+
+    const totalRevenue = (totalRevenueResult._sum.amount?.toNumber() || 0) - (totalRefund)
+
     return {
         totalDoctors,
         totalPendingDoctorApplications,
@@ -78,12 +100,13 @@ const getAdminAnalytics = async () => {
         cancelldAppointments,
         ongoingAppointments,
         pendingAppointments,
-        confirmedAppointments
-
+        confirmedAppointments,
+        totalRevenue,
+        totalRefund
     }
 
 }
-const getDotorAnalytics = async (user: RequestUser) => {
+const getPatientAnalytics = async (user: RequestUser) => {
     const patient = await prisma.patient.findUnique({
         where: {
             id: user.userId
@@ -121,15 +144,46 @@ const getDotorAnalytics = async (user: RequestUser) => {
         }
     })
 
+    const totalSpentResult = await prisma.payment.aggregate({
+        where: {
+            appointment: {
+                patientId: patient.id
+            },
+            status: PaymentStatus.PAID
+        },
+        _sum: {
+            amount: true
+        }
+    })
+
+    const totalAmountSpent = totalSpentResult._sum.amount?.toNumber() || 0;
+
+    const totalRefundResult = await prisma.payment.aggregate({
+        where: {
+            appointment: {
+                patientId: patient.id
+            },
+            status: PaymentStatus.REFUNDED
+        },
+        _sum: {
+            amount: true
+        }
+    })
+
+    const totalRefundAmount = totalRefundResult._sum.amount?.toNumber() || 0;
+
     return {
         totalAppointments,
         upcomingAppointments,
         completedAppointments,
-        cancelledAppointments
+        cancelledAppointments,
+        totalSpentResult,
+        totalAmountSpent,
+        totalRefundAmount
     }
 
 }
-const getPatientAnalytics = async (user: RequestUser) => {
+const getDotorAnalytics = async (user: RequestUser) => {
     const doctor = await prisma.doctor.findUnique({
         where: {
             userId: user.userId
@@ -188,6 +242,31 @@ const getPatientAnalytics = async (user: RequestUser) => {
             status: AppointmentStatus.CANCELLED
         }
     })
+
+    const totalDoctorRefundResult = await prisma.payment.aggregate({
+        where: {
+            id: doctor.id,
+            status: PaymentStatus.PAID
+        },
+        _sum: {
+            amount: true
+        }
+    })
+
+    const totalDoctorRefund = totalDoctorRefundResult._sum.amount?.toNumber() || 0;
+
+    const totalDoctorErnigsResult = await prisma.payment.aggregate({
+        where: {
+            id: doctor.id,
+            status: PaymentStatus.PAID
+        },
+        _sum: {
+            amount: true
+        }
+    })
+
+    const totalDoctorErnigs = (totalDoctorErnigsResult._sum.amount?.toNumber() || 0) - totalDoctorRefund;
+
     return {
         totalSchedules,
         publishedSchedules,
@@ -195,7 +274,9 @@ const getPatientAnalytics = async (user: RequestUser) => {
         totalAppointments,
         upcomingAppointments,
         completedAppointments,
-        cancelledAppointments
+        cancelledAppointments,
+        totalDoctorRefund,
+        totalDoctorErnigs
     }
 
 }
