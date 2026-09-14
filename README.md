@@ -397,7 +397,7 @@ Defined in `src/app/lib/cron.ts` and started on boot:
 
 ## Postman Collection
 
-A ready-to-use collection ships at the repo root: **`PH-Healthcare-API.postman_collection.json`** (44 requests, 8 folders).
+A ready-to-use collection ships at the repo root: **`Healthcare-API.postman_collection.json`** (44 requests, 8 folders).
 
 Features:
 - Collection variable `baseUrl` (default `http://localhost:5000`) plus placeholder variables for ids (`scheduleId`, `appointmentId`, `doctorId`, etc.).
