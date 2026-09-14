@@ -17,7 +17,7 @@ model Appointment {
     createdAt            DateTime          @default(now())
     updatedAt            DateTime          @updatedAt
 
-    @@unique([patientId, doctorId, scheduleId], name: "unique_appointment")
+    @@unique([patientId, doctorId, scheduleId], map: "unique_appointment", where: raw("status <> 'CANCELLED'"))
     @@unique([scheduleId, serialNumber, joiningTime], name: "unique_appointment_serial_number")
     @@map("appoinments")
 }

@@ -298,7 +298,7 @@ const bookAppointmentCallback = async (query: Record<string, any>) => {
 
             await tx.payment.update({
                 where: {
-                    appointmentId: executePaymentResult.executePaymentResult,
+                    appointmentId: appointment.id,
                     bkashPaymentId: paymentID
                 },
                 data: {
@@ -345,7 +345,7 @@ const bookAppointmentCallback = async (query: Record<string, any>) => {
             pdfDocument.moveDown();
 
             pdfDocument.fontSize(12).text(`Doctor Name: ${appointment.doctor.name}`);
-            pdfDocument.fontSize(12).text(`Doctor Email: ${appointment.doctor.specialization}`);
+            pdfDocument.fontSize(12).text(`Doctor Email: ${appointment.doctor.email}`);
 
             pdfDocument.moveDown();
 
@@ -362,7 +362,7 @@ const bookAppointmentCallback = async (query: Record<string, any>) => {
             pdfDocument.fontSize(14).text(`Amount Paid: ${executePaymentResult.amount} BDT`);
             pdfDocument.fontSize(14).text(`Payment Method: Bikash`);
             pdfDocument.fontSize(14).text(`Transaction Id: ${executePaymentResult.trxID}`);
-            pdfDocument.fontSize(14).text(`Paid At: ${executePaymentResult.paymentExicuteTime}`);
+            pdfDocument.fontSize(14).text(`Paid At: ${executePaymentResult.paymentExecuteTime}`);
 
             pdfDocument.end();
 
@@ -370,7 +370,7 @@ const bookAppointmentCallback = async (query: Record<string, any>) => {
 
             await sendEmail({
                 to: appointment.patient.email,
-                subject: "Your Appointment is Confirmed! - PH Healthcare",
+                subject: "Your Appointment is Confirmed! - Healthcare System",
                 template: "appointment-confirmation",
                 attachments: [
                     {
@@ -432,12 +432,17 @@ const cancleAppointment = async (payload: ICancleAppoinmentPayload, user: Reques
         const appointmentId = payload.appointmentId;
 
         const existingAppointment = await prisma.appointment.findUnique({
-            where: {
-                id: appointmentId,
-                patient: {
-                    email: user.email
-                }
-            },
+            where:
+                user.role === Role.PATIENT
+                    ? {
+                        id: appointmentId,
+                        patient: {
+                            email: user.email
+                        }
+                    }
+                    : {
+                        id: appointmentId
+                    },
             include: {
                 payment: true,
                 schedule: true
@@ -466,16 +471,22 @@ const cancleAppointment = async (payload: ICancleAppoinmentPayload, user: Reques
             }
         })
 
-        await prisma.schedule.update({
-            where: {
-                id: existingAppointment.schedule.id,
-            },
-            data: {
-                availableSlots: {
-                    increment: 1
+        const hadConsumedSlot =
+            existingAppointment.status === AppointmentStatus.CONFIRMED ||
+            existingAppointment.status === AppointmentStatus.ONGOING;
+
+        if (hadConsumedSlot) {
+            await prisma.schedule.update({
+                where: {
+                    id: existingAppointment.schedule.id,
+                },
+                data: {
+                    availableSlots: {
+                        increment: 1
+                    }
                 }
-            }
-        })
+            })
+        }
 
         // refund Process 
         const now = new Date();
@@ -485,7 +496,7 @@ const cancleAppointment = async (payload: ICancleAppoinmentPayload, user: Reques
 
         const isEligbleForRefund = isBefore(now, refundCutOfTime);
 
-        if (isEligbleForRefund) {
+        if (isEligbleForRefund && existingAppointment.payment?.status === PaymentStatus.PAID) {
             const bikashIdToken = await getBikashGrantIdToken();
 
             if (!bikashIdToken) {

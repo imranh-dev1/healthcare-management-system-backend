@@ -1,8 +1,8 @@
-# Project Requirements — PH Healthcare System
+# Project Requirements — Healthcare System
 
 ## 1. Overview
 
-PH Healthcare System connects patients with doctors for online consultations. A patient finds a doctor, books an open slot on a published schedule, pays for it, and joins a video call at the scheduled time. The doctor runs the consultation and afterward sends back a digital prescription. Admins and super admins keep the platform running: they approve doctors, manage accounts, and handle the people side of the platform so doctors and patients only have to deal with appointments.
+Healthcare System connects patients with doctors for online consultations. A patient finds a doctor, books an open slot on a published schedule, pays for it, and joins a video call at the scheduled time. The doctor runs the consultation and afterward sends back a digital prescription. Admins and super admins keep the platform running: they approve doctors, manage accounts, and handle the people side of the platform so doctors and patients only have to deal with appointments.
 
 This document is the product spec — what the system must do and the exact rules it must follow. It is not the database schema and not the API design; those come next, and every rule below is written so that whoever designs them doesn't have to guess. The [README](./README.md) describes what's actually implemented in the code today, which is currently far behind this document.
 

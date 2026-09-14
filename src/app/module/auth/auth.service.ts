@@ -67,7 +67,7 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 
 	await sendEmail({
 		to: email,
-		subject: "Verify Your PH Healthcare Email Address",
+		subject: "Verify Your Healthcare System Email Address",
 		template: "email-verification",
 		data: {
 			otpValue,
@@ -125,7 +125,7 @@ const registerPatientVerification = async (payload: IEmailVerifyPayload) => {
 				create: {
 					name: patientPayload.name,
 					email: patientPayload.email,
-					patient: patientPayload.patient
+					...patientPayload.patient
 				},
 			},
 		},
@@ -146,7 +146,7 @@ const registerPatientVerification = async (payload: IEmailVerifyPayload) => {
 
 	await sendEmail({
 		to: patientPayload.email,
-		subject: "Welcome to PH Healthcare!",
+		subject: "Welcome to Healthcare System!",
 		template: "welcome",
 		data: {
 			name: patientPayload.name,
@@ -402,7 +402,7 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 			});
 			await sendEmail({
 				to: user.email,
-				subject: "Welcome to PH Healthcare!",
+				subject: "Welcome to Healthcare System!",
 				template: "welcome",
 				data: {
 					name: user.name,
@@ -491,7 +491,7 @@ const forgotPassword = async (payload: IForgotPasswordPayload) => {
 
 	await sendEmail({
 		to: isUserExist.email,
-		subject: "Your PH Healthcare Password Reset OTP",
+		subject: "Your Healthcare System Password Reset OTP",
 		template: "forgot-password-otp",
 		data: {
 			otp,
@@ -555,7 +555,7 @@ const resetPassword = async (payload: IResetPassword) => {
 
 	await sendEmail({
 		to: isUserExist.email,
-		subject: "PH Healthcare Password Reset Successful",
+		subject: "Healthcare System Password Reset Successful",
 		template: "password-reset-success",
 	});
 }

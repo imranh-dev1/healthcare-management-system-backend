@@ -1,8 +1,8 @@
 {
 	"info": {
 		"_postman_id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
-		"name": "PH Healthcare System API",
-		"description": "Postman collection for the PH Healthcare System Backend.\n\nBase URL: http://localhost:5000\n\nAuthentication:\n- /auth/login, /auth/register-email-verify and /auth/google set the `accessToken` collection variable automatically (test script).\n- Every protected endpoint sends `Authorization: Bearer {{accessToken}}`.\n\nSeeded demo accounts (from .env):\n- Patient:  patient@gmail.com / Patient@123            (or register your own)\n- Admin:    testeradmin@gmail.com / Tester@admin1\n- Doctor:   testerdoctor@gmail.com / Tester@doctor1\n- SuperAdmin: superadmin@gmail.com / Super@admin1\n\nFlow order to exercise the whole system:\n1. Login/register a doctor, then POST /doctor/applying-as-doctor + verify email\n2. ADMIN: /doctor/approved-doctor\n3. DOCTOR: /schedule/create-schedules -> /schedule/publish-schedule/:scheduleId\n4. PATIENT: /appointment/book-appointment -> /appointment/pay-appointment -> bKash callback\n5. DOCTOR: /appointment/update-status/:appointmentId + /prescription/careate-prescription\n6. Browse: /analytics/*, /payment/*, /user/* etc.\n\nNote on route quirks found in the source:\n- The prescription create route has a typo `/careate-prescription` (kept to match the source).",
+		"name": "Healthcare System API",
+		"description": "Postman collection for the Healthcare System Backend.\n\nBase URL: http://localhost:5000\n\nAuthentication:\n- /auth/login, /auth/register-email-verify and /auth/google set the `accessToken` collection variable automatically (test script).\n- Every protected endpoint sends `Authorization: Bearer {{accessToken}}`.\n\nSeeded demo accounts (from .env):\n- Patient:  patient@gmail.com / Patient@123            (or register your own)\n- Admin:    testeradmin@gmail.com / Tester@admin1\n- Doctor:   testerdoctor@gmail.com / Tester@doctor1\n- SuperAdmin: superadmin@gmail.com / Super@admin1\n\nFlow order to exercise the whole system:\n1. Register a patient via POST /auth/register -> verify via /auth/register-email-verify\n2. POST /doctor/applying-as-doctor (multipart) -> check email for OTP + temp password\n3. Login as doctor applicant with temp password -> POST /doctor/applying-as-doctor/email-verify\n4. ADMIN: POST /doctor/approved-doctor to approve\n5. DOCTOR: POST /schedule/create-schedules -> PATCH /schedule/publish-schedule/:scheduleId\n6. PATIENT: POST /appointment/book-appointment -> POST /appointment/pay-appointment -> bKash callback\n7. DOCTOR: PATCH /appointment/update-status/:appointmentId (ONGOING then COMPLETED) -> POST /prescription/careate-prescription\n8. PATIENT: POST /appointment/cancel-appointment (admin can also cancel)\n9. Browse: /analytics/*, /payment/*, /user/* etc.\n\nNote on route quirks found in the source:\n- The prescription create route has a typo `/careate-prescription` (kept to match the source).\n\nBug fixes applied (see README.md for full list):\n- Doctor application flow: temp password now included in verification email\n- Cancel appointment: slot + refund logic fixed (only for PAID/CONFIRMED/ONGOING)\n- Admin cancel: now works correctly (was broken by patient-email-only query)\n- Auth: soft-deleted users are now blocked at middleware level\n- Re-booking after cancel: now allowed via partial unique index",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -682,7 +682,7 @@
 								"cancel-appointment"
 							]
 						},
-						"description": "PATIENT / ADMIN / SUPER_ADMIN only. Cancels the appointment, frees a slot, and triggers a bKash refund if cancelled >1h before start."
+						"description": "PATIENT / ADMIN / SUPER_ADMIN only. Cancels the appointment. A slot is freed and a bKash refund is triggered only if the payment was PAID and the appointment was CONFIRMED or ONGOING. Admins can cancel any appointment; patients can cancel their own."
 					},
 					"response": []
 				},
@@ -722,7 +722,7 @@
 								"{{appointmentId}}"
 							]
 						},
-						"description": "DOCTOR only. Moves status: CONFIRMED -> ONGOING -> COMPLETED. Allowed values: `ONGOING` or `COMPLETED`."
+						"description": "DOCTOR only. Moves status: CONFIRMED -> ONGOING -> COMPLETED. Allowed values: `ONGOING` or `COMPLETED`. A prescription can only be created after status is COMPLETED."
 					},
 					"response": []
 				},
@@ -953,7 +953,7 @@
 								"applying-as-doctor"
 							]
 						},
-						"description": "Open endpoint. Multipart form-data with `resume` (required), `additionalFiles` (optional, multipart key reused), and `data` (JSON string of the application). Creates a DOCTOR user and emails an OTP."
+						"description": "Open endpoint. Multipart form-data with `resume` (required), `additionalFiles` (optional, multipart key reused), and `data` (JSON string of the application). Creates a DOCTOR user with a randomly generated password and emails an OTP. The verification email includes the temporary password — the applicant must log in with it first, then verify their email."
 					},
 					"response": []
 				},
@@ -993,7 +993,7 @@
 								"email-verify"
 							]
 						},
-						"description": "DOCTOR only. Verify the OTP emailed during the application. Marks the doctor's email as verified."
+						"description": "DOCTOR only. Verify the OTP emailed during the application. Marks the doctor's email as verified. First, log in using the temporary password sent in the verification email."
 					},
 					"response": []
 				},
@@ -1032,7 +1032,7 @@
 								"approved-doctor"
 							]
 						},
-						"description": "ADMIN / SUPER_ADMIN only. `verificationStatus`: APPROVED or REJECT. `rejectionReason` is required when rejecting."
+						"description": "ADMIN / SUPER_ADMIN only. `verificationStatus`: APPROVED or REJECT. `rejectionReason` is optional when approving, required when rejecting."
 					},
 					"response": []
 				},
@@ -1651,7 +1651,7 @@
 								"careate-prescription"
 							]
 						},
-						"description": "DOCTOR only. Creates a PDF prescription for a completed/ongoing appointment. (Route has a typo `careate` - matches the source.)"
+						"description": "DOCTOR only. Creates a PDF prescription for a completed appointment (status must be COMPLETED). Generates a PDF, uploads to Cloudinary, and emails it to the patient. (Route has a typo `careate` - matches the source.)"
 					},
 					"response": []
 				},

@@ -37,7 +37,7 @@ const sendEmail = async ({
     });
 
     await transporter.sendMail({
-        from: `"PH Healthcare" < ${config.smtp_emai_sender}> `,
+        from: `"Healthcare System" < ${config.smtp_emai_sender}> `,
         to,
         subject,
         html,

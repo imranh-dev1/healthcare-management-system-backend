@@ -35,8 +35,8 @@ const createPrescription = async (payload: ICreatePrescriptionPayload, user: Req
         throw new AppError(httpStatus.NOT_FOUND, "Appointment Not Found..!")
     }
 
-    if (appointment.status === AppointmentStatus.COMPLETED) {
-        throw new AppError(httpStatus.CONFLICT, "Prescription Can onliy Be Written for a completed Appointment")
+    if (appointment.status !== AppointmentStatus.COMPLETED) {
+        throw new AppError(httpStatus.CONFLICT, "Prescription can onliy Be Written for a completed Appointment")
     }
 
     if (appointment.prescriptionUrl) {
@@ -131,7 +131,7 @@ const createPrescription = async (payload: ICreatePrescriptionPayload, user: Req
 
     await sendEmail({
         to: appointment.patient.email,
-        subject: "Your Prescription - PH Healthcare System",
+        subject: "Your Prescription - Healthcare System",
         template: "prescription",
         data: {
             patientName: appointment.patient.name,

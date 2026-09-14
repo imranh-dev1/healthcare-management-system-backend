@@ -1,4 +1,4 @@
-# PH Healthcare System — Backend
+# Healthcare System — Backend
 
 REST API for a doctor-appointment platform where **patients book consultations**, **doctors run them remotely and write prescriptions**, and **admins/super-admins manage the platform and review doctor applications**.
 
@@ -191,7 +191,7 @@ Smoke test:
 
 ```bash
 curl http://localhost:5000/
-# {"success":true,"message":"Welcome to PH Healthcare System Backend"}
+# {"success":true,"message":"Welcome to Healthcare System Backend"}
 ```
 
 ---
@@ -282,8 +282,8 @@ Password rule: ≥ 8 chars, one uppercase, one lowercase, one digit, one special
 | Method | Path                                  | Access                 | Notes |
 | ------ | ------------------------------------- | ---------------------- | ----- |
 | POST   | `/doctor/applying-as-doctor`          | public                 | multipart `resume`, `additionalFiles*`, `data` (JSON string) |
-| POST   | `/doctor/applying-as-doctor/email-verify` | DOCTOR               | `{ email, otp }` |
-| POST   | `/doctor/approved-doctor`             | ADMIN, SUPER_ADMIN     | `{ doctorId, verificationStatus, rejectionReason }` |
+| POST   | `/doctor/applying-as-doctor/email-verify` | DOCTOR               | `{ email, otp }` — the verification email now includes the applicant's temporary login password |
+| POST   | `/doctor/approved-doctor`             | ADMIN, SUPER_ADMIN     | `{ doctorId, verificationStatus, rejectionReason? }` — `rejectionReason` optional unless rejecting |
 | GET    | `/doctor/all-doctors`                 | ADMIN, SUPER_ADMIN     | filters: `searchTerm`, `specialization`, `email`, `licenseNumber`, `verificationStatus` |
 | PATCH  | `/doctor/update-my-profile`           | DOCTOR                 | all fields optional |
 | GET    | `/doctor/public-doctors`              | public                 | approved doctors only |
@@ -310,7 +310,7 @@ Password rule: ≥ 8 chars, one uppercase, one lowercase, one digit, one special
 | POST   | `/appointment/book-appointment`                   | PATIENT               | `{ scheduleId }` → creates PENDING appointment + bKash intent, returns `paymentUrl` |
 | POST   | `/appointment/pay-appointment`                    | PATIENT               | `{ appointmentId }` → re-initiate checkout for pending appointment |
 | GET    | `/appointment/book-appointment/payment/callback`  | bKash callback        | `paymentID`, `status` — confirms appointment, emails invoice |
-| POST   | `/appointment/cancel-appointment`                 | PATIENT, ADMIN, SUPER_ADMIN | `{ appointmentId }` → auto bKash refund if >1h before start |
+| POST   | `/appointment/cancel-appointment`                 | PATIENT, ADMIN, SUPER_ADMIN | `{ appointmentId }` → cancels the appointment, frees a slot only if payment was PAID/CONFIRMED; auto bKash refund if >1h before start and payment was PAID |
 | PATCH  | `/appointment/update-status/:appointmentId`       | DOCTOR                | `{ status: "ONGOING" \| "COMPLETED" }` |
 | GET    | `/appointment/my-appointments`                    | PATIENT               | `page`, `limit`, `status` |
 | GET    | `/appointment/doctor-appointments`                | DOCTOR                | `page`, `limit`, `status` |
@@ -441,6 +441,31 @@ npx prisma studio     # browser GUI at http://localhost:5555
 - **Error messages** contain a few typos (e.g. "Pataint Not Found"). Cosmetic only.
 - **Environment config** is unvalidated at boot — a missing variable surfaces at runtime when first used.
 - **bKash integration** uses the sandbox tokenized checkout; swap the credentials/URL for production.
+- **Doctor application bio/fee/contact**: the `bio`, `consultationFee`, and `contactNumber` fields from the application `data` payload are not persisted at apply time — they must be set after approval via `update-my-profile`.
+
+---
+
+## Bug Fixes Applied
+
+The following bugs were identified and fixed during code review:
+
+| # | Module | Bug | Fix |
+|---|--------|-----|-----|
+| 1 | Schedule | `differenceInMinutes` arguments were swapped in slot computation, always producing negative values | Fixed arg order to `(end, start)` |
+| 2 | Doctor | `rejectionReason` was required in the approve/reject validation schema | Made optional (`z.string().optional()`) |
+| 3 | Doctor | Typo `rejectionReson` in interface/service vs `rejectionReason` in validation | Fixed to `rejectionReason` throughout |
+| 4 | Doctor | `approved-doctor` response included password hash via `user: true` | Changed to `user: { omit: { password: true } }` |
+| 5 | Schedule | `getMySchedules` / `getAllSchedules` pagination `total` returned `totalPages` instead of record count | Fixed to `total: totalSchedules` + added `totalPages` field |
+| 6 | Appointment | Cancel always incremented `availableSlots` even for never-paid (PENDING) appointments | Only increment when status was CONFIRMED or ONGOING |
+| 7 | Appointment | Cancel refund logic ran regardless of payment status | Refund only when `payment.status === PAID` |
+| 8 | Appointment | Admin/super-admin cancel failed — always queried by `patient.email` | Conditional query based on `user.role` |
+| 9 | Appointment | bKash callback payment lookup used `undefined` appointmentId | Changed to `appointmentId: appointment.id` |
+| 10 | Appointment | Invoice PDF: doctor email field used `specialization`; typo `paymentExicuteTime` | Fixed to `doctor.email` + `paymentExecuteTime` |
+| 11 | Prescription | `createPrescription` status guard was inverted (threw when IS completed) | Fixed condition to `!== AppointmentStatus.COMPLETED` |
+| 12 | DB | `@@unique` on appointments prevented re-booking after cancel | Partial unique index `WHERE status <> 'CANCELLED'` + Prisma `previewFeatures = ["partialIndexes"]` |
+| 13 | Doctor | Multer config for `applying-as-doctor` was missing `data` field → "Unexpected field" error | Added `{ name: 'data', maxCount: 1 }` to `upload.fields` |
+| 14 | Doctor | Applicant's randomly generated password was never emailed → could not log in to verify | Included temp password in the email-verification template |
+| 15 | Auth | Soft-deleted users could still access APIs with a valid token | Added `isDeleted` check in `checkAuth.ts` middleware |
 
 ---
 

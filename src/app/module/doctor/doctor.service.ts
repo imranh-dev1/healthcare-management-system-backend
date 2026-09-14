@@ -116,10 +116,11 @@ const applyingAsDoctor = async (payload: IDoctor, resumeFile: Express.Multer.Fil
 
     await sendEmail({
         to: payload.user.email,
-        subject: "Verify Your PH Healthcare Email Address",
+        subject: "Verify Your Healthcare System Email Address",
         template: "email-verification",
         data: {
             otpValue,
+            password: randomPassword,
         }
     });
 
@@ -170,7 +171,7 @@ const verifiDoctorEmail = async (payload: IDoctorEmailVerify) => {
 
 const approvedDoctor = async (payload: IApproveDoctor, reviewer: RequestUser) => {
 
-    const { doctorId, verificationStatus, rejectionReson } = payload;
+    const { doctorId, verificationStatus, rejectionReason } = payload;
 
     const doctor = await prisma.doctor.findUnique({
         where: {
@@ -203,7 +204,7 @@ const approvedDoctor = async (payload: IApproveDoctor, reviewer: RequestUser) =>
         );
     }
 
-    if (verificationStatus === DoctorVerificationStatus.REJECT && !rejectionReson) {
+    if (verificationStatus === DoctorVerificationStatus.REJECT && !rejectionReason) {
         throw new AppError(400, "Rejection reason is required when rejecting a doctor application.");
     }
 
@@ -215,12 +216,16 @@ const approvedDoctor = async (payload: IApproveDoctor, reviewer: RequestUser) =>
         },
         data: {
             verificationStatus: normalizedVerificationStatus,
-            rejectionReason: verificationStatus === DoctorVerificationStatus.REJECT ? rejectionReson : null,
+            rejectionReason: verificationStatus === DoctorVerificationStatus.REJECT ? rejectionReason : null,
             reviewedBy: reviewer.userId,
             reviewdAt: new Date(),
         },
         include: {
-            user: true,
+            user: {
+                omit: {
+                    password: true,
+                },
+            },
         },
     });
 
@@ -228,8 +233,8 @@ const approvedDoctor = async (payload: IApproveDoctor, reviewer: RequestUser) =>
         to: doctor.email,
         subject:
             normalizedVerificationStatus === DoctorVerificationStatus.APPROVED
-                ? "Your PH Healthcare Doctor Application Has Been Approved"
-                : "Update on Your PH Healthcare Doctor Application",
+                ? "Your Healthcare System Doctor Application Has Been Approved"
+                : "Update on Your Healthcare System Doctor Application",
         template:
             normalizedVerificationStatus === DoctorVerificationStatus.APPROVED
                 ? "doctor-application-approved"

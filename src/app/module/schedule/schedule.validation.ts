@@ -10,16 +10,6 @@ export const createScheduleValidationSchema = z
             message: "Invalid end date and time",
         }),
 
-        totalSlots: z
-            .number()
-            .int()
-            .positive("Total slots must be greater than 0"),
-
-        availableSlots: z
-            .number()
-            .int()
-            .nonnegative("Available slots cannot be negative"),
-
         meetingLink: z.string().url("Meeting link must be a valid URL"),
     })
     .refine(
@@ -29,13 +19,6 @@ export const createScheduleValidationSchema = z
             path: ["endDateTime"],
         }
     )
-    .refine(
-        (data) => data.availableSlots <= data.totalSlots,
-        {
-            message: "Available slots cannot exceed total slots",
-            path: ["availableSlots"],
-        }
-    );
 
 export const updateScheduleValidationSchema = z.object({
     startDateTime: z

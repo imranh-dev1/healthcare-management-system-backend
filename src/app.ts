@@ -51,7 +51,7 @@ app.use("/api/v1/analytics", AnalyticsRoutes);
 app.get("/", async (req: Request, res: Response) => {
 	res.status(httpStatus.OK).json({
 		success: true,
-		message: "Welcome to PH Healthcare System Backend",
+		message: "Welcome to Healthcare System Backend",
 	});
 });
 
@@ -65,7 +65,7 @@ app.get("/test", async (req: Request, res: Response) => {
 
 		res.status(httpStatus.OK).json({
 			success: true,
-			message: "Welcome to PH Healthcare System Backend Bikash initialize test",
+			message: "Welcome to Healthcare System Backend Bikash initialize test",
 			data: null
 		});
 

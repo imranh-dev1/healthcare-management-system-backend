@@ -71,6 +71,13 @@ export const auth = (...requiredRoles: Role[]) => {
 				throw new AppError(401, "User not found. Please log in again.");
 			}
 
+			if (user.isDeleted) {
+				throw new AppError(
+					401,
+					"This account has been deleted. Please contact support.",
+				);
+			}
+
 			if (user.status === "BLOCKED") {
 				throw new AppError(
 					403,

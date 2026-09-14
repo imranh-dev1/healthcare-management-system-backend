@@ -10,12 +10,13 @@ const router = Router();
 
 router.post("/applying-as-doctor", upload.fields([
     { name: 'resume', maxCount: 1 },
-    { name: 'additionalFiles', maxCount: 10 }
+    { name: 'additionalFiles', maxCount: 10 },
+    { name: 'data', maxCount: 1 }
 ]), DoctorController.applyingAsDoctor)
 
 router.post("/applying-as-doctor/email-verify", auth(Role.DOCTOR), DoctorController.verifiDoctorEmail)
 router.post("/approved-doctor", auth(Role.ADMIN, Role.SUPER_ADMIN), validateRequest(ApproveDoctorValidationSchema), DoctorController.approvedDoctor)
-router.get("/all-doctors", auth(Role.ADMIN, Role.SUPER_ADMIN), validateRequest(ApproveDoctorValidationSchema), DoctorController.getAllDoctors)
+router.get("/all-doctors", auth(Role.ADMIN, Role.SUPER_ADMIN), DoctorController.getAllDoctors)
 router.patch("/update-my-profile", auth(Role.DOCTOR), validateRequest(DoctorValidation.updateDoctorSchema), DoctorController.updateMyDoctorProfile);
 
 // Public doctor list

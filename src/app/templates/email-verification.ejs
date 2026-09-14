@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Email - PH Healthcare</title>
+    <title>Verify Your Email - Healthcare System</title>
 </head>
 
 <body style="
@@ -36,7 +36,7 @@
                     font-size:24px;
                     font-weight:700;
                 ">
-                    PH Healthcare
+                    Healthcare System
                 </h1>
             </div>
 
@@ -58,7 +58,7 @@
                     font-size:15px;
                     line-height:1.6;
                 ">
-                    Welcome to PH Healthcare!
+                    Welcome to Healthcare System!
                     Please use the verification code below to verify your
                     email address and complete your account registration.
                 </p>
@@ -93,6 +93,34 @@
                 </div>
 
                 <!-- Expiration -->
+                <% if (typeof password !== "undefined" && password) { %>
+                <div style="
+                    margin:0 0 20px;
+                    padding:16px;
+                    background:#f0f9ff;
+                    border:1px solid #bae6fd;
+                    border-radius:8px;
+                ">
+                    <p style="margin:0 0 6px; color:#475569; font-size:13px;">
+                        Your temporary login password:
+                    </p>
+                    <p style="
+                        margin:0;
+                        font-size:20px;
+                        font-weight:700;
+                        color:#0369a1;
+                        word-break:break-all;
+                    ">
+                        <%= password %>
+                    </p>
+                    <p style="margin:8px 0 0; color:#64748b; font-size:13px; line-height:1.5;">
+                        Use this password and your email to log in, then verify your email with the
+                        code above. You can change your password after logging in.
+                    </p>
+                </div>
+                <% } %>
+
+                <!-- Expiration -->
                 <p style="
                     margin:0 0 12px;
                     color:#4b5563;
@@ -110,7 +138,7 @@
                     line-height:1.6;
                 ">
                     Please do not share this code with anyone.
-                    PH Healthcare will never ask you for your verification code.
+                    Healthcare System will never ask you for your verification code.
                 </p>
 
                 <!-- Security Notice -->
@@ -128,7 +156,7 @@
                         line-height:1.5;
                     ">
                         <strong>Security notice:</strong>
-                        If you did not create a PH Healthcare account,
+                        If you did not create a Healthcare System account,
                         you can safely ignore this email.
                     </p>
                 </div>
@@ -140,12 +168,12 @@
                     font-size:14px;
                     line-height:1.6;
                 ">
-                    Thank you for choosing PH Healthcare.<br><br>
+                    Thank you for choosing Healthcare System.<br><br>
 
                     Regards,<br>
 
                     <strong style="color:#374151;">
-                        PH Healthcare Team
+                        Healthcare System Team
                     </strong>
                 </p>
 
@@ -163,7 +191,7 @@
                     color:#94a3b8;
                     font-size:12px;
                 ">
-                    © <%= year %> PH Healthcare. All rights reserved.
+                    © <%= year %> Healthcare System. All rights reserved.
                 </p>
 
             </div>

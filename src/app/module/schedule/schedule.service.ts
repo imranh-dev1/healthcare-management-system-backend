@@ -45,7 +45,7 @@ const createSchedule = async (payload: ICreateSchedule, user: RequestUser) => {
         throw new AppError(status.CONFLICT, "Schedule already exists for the given date.");
     }
 
-    const durationInMinutes = differenceInMinutes(payload.startDateTime, payload.endDateTime);
+    const durationInMinutes = differenceInMinutes(payload.endDateTime, payload.startDateTime);
 
     const MINUTES_ALLOCATED_PER_SLOT = 20;
 
@@ -144,7 +144,8 @@ const getMySchedules = async (query: IQuery, user: RequestUser) => {
         meta: {
             page: page,
             limit: limit,
-            total: Math.ceil(totalSchedules / limit)
+            total: totalSchedules,
+            totalPages: Math.ceil(totalSchedules / limit)
         }
     };
 
@@ -240,7 +241,8 @@ const getAllSchedules = async (query: IQuery) => {
         meta: {
             page: page,
             limit: limit,
-            total: Math.ceil(totalSchedules / limit)
+            total: totalSchedules,
+            totalPages: Math.ceil(totalSchedules / limit)
         }
     };
 
@@ -321,7 +323,7 @@ const updateSchedule = async (scheduleId: string, payload: IUpdateSchedule, user
         throw new AppError(status.CONFLICT, "Schedule already exists for the given date.");
     }
 
-    const durationInMinutes = differenceInMinutes(payload.startDateTime, payload.endDateTime);
+    const durationInMinutes = differenceInMinutes(payload.endDateTime, payload.startDateTime);
 
     const MINUTES_ALLOCATED_PER_SLOT = 20;
 

@@ -14,7 +14,7 @@ router.get("/my-schedules", auth(Role.DOCTOR), ScheduleController.getMySchedules
 
 router.get("/all-schedules", auth(Role.ADMIN, Role.SUPER_ADMIN), ScheduleController.getAllSchedules);
 
-router.get("/todays-schedules", auth(Role.PATIENT), ScheduleController.getTodaysSchedules);
+router.get("/todays-schedules", ScheduleController.getTodaysSchedules);
 
 router.patch("/update-schedule/:scheduleId", auth(Role.DOCTOR), validateRequest(updateScheduleValidationSchema), ScheduleController.updateSchedule);
 

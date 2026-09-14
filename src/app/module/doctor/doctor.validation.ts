@@ -89,6 +89,7 @@ export const ApproveDoctorValidationSchema = z.object({
         .string()
         .trim()
         .max(500, "Rejection reason must not exceed 500 characters.")
+        .optional()
 });
 
 const updateDoctorSchema = z.object({
