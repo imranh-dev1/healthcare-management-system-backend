@@ -188,6 +188,19 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const logOut = catchAsync(async (req: Request, res: Response) => {
+
+	res.clearCookie("accessToken")
+	res.clearCookie("refreshToken")
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `User Logout successfully.`,
+		data: null,
+	});
+});
+
 
 export const AuthController = {
 	registerPatient,
@@ -197,5 +210,6 @@ export const AuthController = {
 	refreshToken,
 	googleLogin,
 	resetPassword,
-	forgotPassword
+	forgotPassword,
+	logOut
 };
