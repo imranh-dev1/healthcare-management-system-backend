@@ -5,6 +5,7 @@ import { sendResponse } from "../../utils/sendResponse";
 import type { IRequestUser } from "./auth.interface";
 import { AuthService } from "./auth.service";
 import { AppError } from "../../utils/AppError";
+import config from "../../config";
 
 const registerPatient = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
@@ -16,25 +17,25 @@ const registerPatient = catchAsync(async (req: Request, res: Response) => {
 		message: "Patient registered Email verification OTP Sent Successfully....",
 		data: null,
 	});
-	
+
 });
 
 const registerPatientEmailVerification = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
-	const result = await AuthService.registerPatientVerification(payload); 
-	
+	const result = await AuthService.registerPatientVerification(payload);
+
 	const { accessToken, refreshToken, user, patient } = result;
 
 	res.cookie("accessToken", accessToken, {
 		httpOnly: true,
-		secure: false,
-		sameSite: "none",
+		secure: config.node_env === "development" ? false : true,
+		sameSite: config.node_env === "development" ? "lax" : "none",
 		maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
 	});
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true,
-		secure: false,
-		sameSite: "none",
+		secure: config.node_env === "development" ? false : true,
+		sameSite: config.node_env === "development" ? "lax" : "none",
 		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 	});
 
@@ -48,8 +49,8 @@ const registerPatientEmailVerification = catchAsync(async (req: Request, res: Re
 			user,
 			patient,
 		},
-	}); 
-	
+	});
+
 });
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
@@ -59,14 +60,14 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 
 	res.cookie("accessToken", accessToken, {
 		httpOnly: true,
-		secure: false,
-		sameSite: "none",
+		secure: config.node_env === "development" ? false : true,
+		sameSite: config.node_env === "development" ? "lax" : "none",
 		maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
 	});
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true,
-		secure: false,
-		sameSite: "none",
+		secure: config.node_env === "development" ? false : true,
+		sameSite: config.node_env === "development" ? "lax" : "none",
 		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 	});
 
@@ -106,14 +107,14 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 
 	res.cookie("accessToken", accessToken, {
 		httpOnly: true,
-		secure: false,
-		sameSite: "none",
+		secure: config.node_env === "development" ? false : true,
+		sameSite: config.node_env === "development" ? "lax" : "none",
 		maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
 	});
 	res.cookie("refreshToken", newRefreshToken, {
 		httpOnly: true,
-		secure: false,
-		sameSite: "none",
+		secure: config.node_env === "development" ? false : true,
+		sameSite: config.node_env === "development" ? "lax" : "none",
 		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 	});
 
@@ -138,14 +139,14 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 
 	res.cookie("accessToken", accessToken, {
 		httpOnly: true,
-		secure: false,
-		sameSite: "none",
+		secure: config.node_env === "development" ? false : true,
+		sameSite: config.node_env === "development" ? "lax" : "none",
 		maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
 	});
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true,
-		secure: false,
-		sameSite: "none",
+		secure: config.node_env === "development" ? false : true,
+		sameSite: config.node_env === "development" ? "lax" : "none",
 		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 	});
 
@@ -161,9 +162,9 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 });
 
 const resetPassword = catchAsync(async (req: Request, res: Response) => {
-	const payload = req.body; 
+	const payload = req.body;
 
-	await AuthService.resetPassword(payload) 
+	await AuthService.resetPassword(payload)
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -175,9 +176,9 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
 
 
 const forgotPassword = catchAsync(async (req: Request, res: Response) => {
-	const payload = req.body; 
+	const payload = req.body;
 
-	await AuthService.forgotPassword(payload) 
+	await AuthService.forgotPassword(payload)
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -186,8 +187,8 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 		data: null,
 	});
 });
- 
-  
+
+
 export const AuthController = {
 	registerPatient,
 	registerPatientEmailVerification,
