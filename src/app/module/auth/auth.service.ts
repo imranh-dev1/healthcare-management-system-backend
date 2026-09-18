@@ -91,6 +91,11 @@ const registerPatientVerification = async (payload: IEmailVerifyPayload) => {
 
 	const storedOtp = await redisClient.get(otpKey);
 
+	if (config.node_env === "development") {
+		console.log(`[email]: ${otpKey}, [otp]: ${storedOtp}`);
+
+	}
+
 	if (!storedOtp) {
 		throw new AppError(400, "OTP has expired. Please register again.");
 	}
