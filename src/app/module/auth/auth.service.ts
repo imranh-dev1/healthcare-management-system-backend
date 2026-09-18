@@ -43,7 +43,6 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 
 	if (config.node_env === "development") {
 		console.log(`[email]: ${otpKey}, [otp]: ${otpValue}`);
-
 	}
 
 	const expirationSeconds = 5 * 60;
