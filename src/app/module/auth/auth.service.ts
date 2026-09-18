@@ -41,6 +41,11 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 	const otpValue = crypto.randomInt(100000, 1000000).toString();
 	const otpKey = `patient-register-otp:${email}`;
 
+	if (config.node_env === "development") {
+		console.log(`[email]: ${otpKey}, [otp]: ${otpValue}`);
+
+	}
+
 	const expirationSeconds = 5 * 60;
 
 	await redisClient.set(otpKey, otpValue, {
@@ -90,11 +95,6 @@ const registerPatientVerification = async (payload: IEmailVerifyPayload) => {
 	const otpKey = `patient-register-otp:${email}`;
 
 	const storedOtp = await redisClient.get(otpKey);
-
-	if (config.node_env === "development") {
-		console.log(`[email]: ${otpKey}, [otp]: ${storedOtp}`);
-
-	}
 
 	if (!storedOtp) {
 		throw new AppError(400, "OTP has expired. Please register again.");
