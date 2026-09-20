@@ -242,7 +242,7 @@ const approvedDoctor = async (payload: IApproveDoctor, reviewer: RequestUser) =>
         data: {
             doctorName: doctor.name,
             rejectionReason:
-                normalizedVerificationStatus === DoctorVerificationStatus.REJECT ? rejectionReson : undefined,
+                normalizedVerificationStatus === DoctorVerificationStatus.REJECT ? rejectionReason : undefined,
         },
     });
 
