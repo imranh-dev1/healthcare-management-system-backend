@@ -14,9 +14,14 @@ router.post("/applying-as-doctor", upload.fields([
     { name: 'data', maxCount: 1 }
 ]), DoctorController.applyingAsDoctor)
 
-router.post("/applying-as-doctor/email-verify", DoctorController.verifiDoctorEmail)
-router.post("/approved-doctor", auth(Role.ADMIN, Role.SUPER_ADMIN), validateRequest(ApproveDoctorValidationSchema), DoctorController.approvedDoctor)
-router.get("/all-doctors", auth(Role.ADMIN, Role.SUPER_ADMIN), DoctorController.getAllDoctors)
+router.post("/applying-as-doctor/email-verify", DoctorController.verifiDoctorEmail);
+
+router.post("/approved-doctor", auth(Role.ADMIN, Role.SUPER_ADMIN), validateRequest(ApproveDoctorValidationSchema), DoctorController.approvedDoctor);
+
+router.get("/all-doctors", auth(Role.ADMIN, Role.SUPER_ADMIN), DoctorController.getAllDoctors);
+
+router.get("/admin/doctors/:doctorId", auth(Role.ADMIN, Role.SUPER_ADMIN), DoctorController.getSingleDoctorAdminProfile);
+
 router.patch("/update-my-profile", auth(Role.DOCTOR), validateRequest(DoctorValidation.updateDoctorSchema), DoctorController.updateMyDoctorProfile);
 
 // Public doctor list

@@ -81,7 +81,20 @@ const getAllDoctors = catchAsync(async (req: Request, res: Response) => {
         statusCode: httpStatus.OK,
         success: true,
         message: "Doctors retrieved successfully.",
-        data: { data, meta },
+        data: data, meta,
+    });
+});
+
+const getSingleDoctorAdminProfile = catchAsync(async (req: Request, res: Response) => {
+    const doctorId = req.params.doctorId as string;
+
+    const result = await DoctorServices.getSingleDoctorAdminProfile(doctorId);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Doctor profile retrieved successfully.",
+        data: result,
     });
 });
 
@@ -138,6 +151,7 @@ export const DoctorController = {
     verifiDoctorEmail,
     approvedDoctor,
     getAllDoctors,
+    getSingleDoctorAdminProfile,
     updateMyDoctorProfile,
     getAvailableDoctorByTodaysSchedule,
     getAllDoctorsListPublic,

@@ -353,6 +353,26 @@ const getAllDoctors = async (query: IQuery) => {
     }
 }
 
+// Get single doctor admin & super admin profile
+const getSingleDoctorAdminProfile = async (doctorId: string) => {
+
+    const doctor = await prisma.doctor.findUnique({
+        where: {
+            id: doctorId,
+        },
+        include: {
+            user: {
+                omit: {
+                    password: true,
+                },
+            },
+        },
+    });
+
+    return doctor;
+
+};
+
 const updateMyDoctorProfile = async (payload: IUpdateDoctorPayload, user: RequestUser) => {
     const existingDoctor = await prisma.doctor.findUnique({
         where: {
@@ -602,6 +622,7 @@ export const DoctorServices = {
     verifiDoctorEmail,
     approvedDoctor,
     getAllDoctors,
+    getSingleDoctorAdminProfile,
     updateMyDoctorProfile,
     getAvailableDoctorByTodaysSchedule,
     getSingleDoctorPublicProfile,
